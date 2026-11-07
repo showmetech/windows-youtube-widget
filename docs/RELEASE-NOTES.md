@@ -1,4 +1,6 @@
-YouTube Widget 1.7.0
+YouTube Widget 1.7.1
+
+- Handles GitHub checksum downloads correctly when PowerShell returns binary response content. Installer hashes are always verified before execution.
 
 - Self-contained x64, x86 and ARM64 distributions, with the official Microsoft WebView2 runtime included.
 - Matching application/tray/desktop icons and startup in the notification area.

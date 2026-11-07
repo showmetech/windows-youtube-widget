@@ -19,7 +19,9 @@ $work=Join-Path ([IO.Path]::GetTempPath()) ('YouTubeWidgetRelease-'+[guid]::NewG
 New-Item -ItemType Directory -Path $work | Out-Null
 $installer=Join-Path $work $name
 Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $installer
-$sumText=(Invoke-WebRequest -Uri $sums.browser_download_url).Content
+$sumPath=Join-Path $work 'SHA256SUMS.txt'
+Invoke-WebRequest -Uri $sums.browser_download_url -OutFile $sumPath
+$sumText=[IO.File]::ReadAllText($sumPath)
 $line=@($sumText -split "`n" | Where-Object { $_.TrimEnd().EndsWith('  '+$name) })
 if($line.Count -ne 1){throw 'The installer must have exactly one checksum entry.'}
 $expected=($line[0] -split '\s+')[0]
