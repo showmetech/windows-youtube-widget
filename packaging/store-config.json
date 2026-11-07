@@ -1,0 +1,12 @@
+{
+ "enabled":false,
+ "productId":null,
+ "identityName":null,
+ "publisher":null,
+ "publisherDisplayName":"Showmetech",
+ "firstPublicationComplete":false,
+ "unvirtualizedResourcesApproved":false,
+ "onboardingStatus":"Existing SHOWMETECH LTDA company account: Microsoft business verification pending on 2026-11-07. Preserve this account; do not create a replacement.",
+ "privacyPolicyUrl":"https://showmetech.github.io/windows-youtube-widget/privacy.html",
+ "supportUrl":"https://github.com/showmetech/windows-youtube-widget/issues"
+}

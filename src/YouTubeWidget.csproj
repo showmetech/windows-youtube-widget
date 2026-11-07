@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+ <PropertyGroup><OutputType>WinExe</OutputType><TargetFramework>net10.0-windows10.0.19041.0</TargetFramework><WindowsSdkPackageVersion>10.0.19041.57</WindowsSdkPackageVersion><UseWPF>true</UseWPF><UseWindowsForms>true</UseWindowsForms><Nullable>enable</Nullable><ImplicitUsings>disable</ImplicitUsings><ApplicationIcon>Assets/App.ico</ApplicationIcon><ApplicationManifest>app.manifest</ApplicationManifest><AssemblyName>WindowsYouTubeWidget</AssemblyName><NoWarn>WPF0001</NoWarn></PropertyGroup>
+
+ <ItemGroup><PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3719.77" /></ItemGroup>
+ <ItemGroup><Content Include="Assets/*"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory><CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory></Content><Content Include="Web/**"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory><CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory></Content></ItemGroup>
+</Project>
+
+
+
+
+
+
+

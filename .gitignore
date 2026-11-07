@@ -1,0 +1,17 @@
+**/bin/
+**/obj/
+artifacts/
+build/
+.release-state/
+*.user
+*.pfx
+*.p12
+*.cer
+*.log
+**/Browser/
+**/TestProfile/
+**/SuiteTestProfile/
+**/settings.json
+**/runtime-health.json
+**/bridge-*.json
+**/.widget-activation-state.json

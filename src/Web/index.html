@@ -1,0 +1,27 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="referrer" content="strict-origin-when-cross-origin"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{overflow:hidden;margin:0;height:100%;background:#080a0f;color:#ccd1dc;font:14px 'Segoe UI',sans-serif}#player{display:block;border:0;width:100%;height:100%}#welcome{height:100%;display:grid;place-content:center;text-align:center;padding:0 25px;box-sizing:border-box}b{font-size:18px;color:white}p{line-height:1.6}span{color:#ff626d;font-size:28px}</style></head><body><div id="welcome"><span>▶</span><b>Seu vídeo, por perto.</b><p>Conecte sua conta nas configurações<br>ou abra um link do YouTube.</p></div><div id="player" hidden></div><script>
+let player,pending,timer,wantedVolume=100,wantedMuted=false;const post=o=>window.chrome.webview.postMessage(o);
+function snapshot(){try{const d=player.getVideoData();post({type:'audio',muted:player.isMuted()});post({type:'progress',id:d.video_id||'',title:d.title||'',seconds:Number(player.getCurrentTime())||0,duration:Number(player.getDuration())||0,volume:player.getVolume(),playlistIndex:player.getPlaylistIndex?.()??-1,playlistCount:player.getPlaylist?.()?.length||0});}catch{}}
+function load(v,autoplay=false){pending={video:v,autoplay};if(!window.YT?.Player)return;document.getElementById('welcome')?.remove();document.getElementById('player').hidden=false;
+ if(player){player.destroy();const div=document.createElement('div');div.id='player';document.body.appendChild(div);}
+ const vars={playsinline:1,controls:0,fs:0,iv_load_policy:3,rel:0,autoplay:autoplay?1:0,origin:location.origin,start:v.Start||0};if(v.Playlist){vars.listType='playlist';vars.list=v.Playlist;}
+ player=new YT.Player('player',{width:'100%',height:'100%',videoId:v.Id||undefined,playerVars:vars,events:{onReady:()=>{player.setVolume(wantedVolume);if(wantedMuted)player.mute();post({type:'ready'});snapshot();if(autoplay)player.playVideo();},onStateChange:e=>{post({type:'state',state:e.data});snapshot();},onError:e=>post({type:'error',code:e.data})}});
+ clearInterval(timer);timer=setInterval(snapshot,500);
+}
+function onYouTubeIframeAPIReady(){if(pending)load(pending.video,pending.autoplay);}
+window.chrome.webview.addEventListener('message',e=>{const m=e.data;if(m.type==='load'){load(m.video,m.autoplay===true);return;}if(!player?.getPlayerState)return;
+ if(m.type==='handoff'){wantedVolume=m.volume;wantedMuted=m.muted;player.setVolume(wantedVolume);if(wantedMuted)player.mute();else player.unMute();if(player.getAvailablePlaybackRates().includes(m.rate))player.setPlaybackRate(m.rate);if(!m.live||m.seconds<=player.getDuration())player.seekTo(m.seconds,true);if(m.playing)player.playVideo();else player.pauseVideo();}
+ if(m.type==='previousVideo')player.previousVideo();
+ if(m.type==='nextVideo')player.nextVideo();
+ if(m.type==='pause')player.pauseVideo();
+ if(m.type==='toggle'){if([1,3].includes(player.getPlayerState()))player.pauseVideo();else player.playVideo();}
+ if(m.type==='mute'){wantedMuted=!player.isMuted();if(wantedMuted)player.mute();else player.unMute();}
+ if(m.type==='volume'){wantedVolume=Math.max(0,Math.min(100,Number(m.value)||0));player.setVolume(wantedVolume);wantedMuted=wantedVolume===0;if(wantedMuted)player.mute();else player.unMute();}
+ if(m.type==='seek'||m.type==='seekBy'){const end=Number(player.getDuration())||0;if(end>0){const target=m.type==='seekBy'?player.getCurrentTime()+Number(m.seconds):Number(m.seconds);player.seekTo(Math.max(0,Math.min(end,target)),true);}}
+ snapshot();
+});
+let s=document.createElement('script');s.src='https://www.youtube.com/iframe_api';s.onerror=()=>post({type:'network'});document.head.appendChild(s);
+</script></body></html>
+
+
+
+

@@ -1,0 +1,10 @@
+{
+ "version":"157.0.4341.42",
+ "source":"https://developer.microsoft.com/en-us/microsoft-edge/webview2",
+ "redistributionApprovedOn":"2026-11-07",
+ "artifacts":{
+  "x64":{"url":"https://msedge.sf.dl.delivery.mp.microsoft.com/filestreamingservice/files/b7b22a57-b321-483e-9855-d260b076f1a7/Microsoft.WebView2.FixedVersionRuntime.157.0.4341.42.x64.cab","sha256":"CEDAF8F3D12202C8803BDBAE727B01C1BE34540B78E8F0A10C6B401C2A8BE97D"},
+  "arm64":{"url":"https://msedge.sf.dl.delivery.mp.microsoft.com/filestreamingservice/files/08a5965c-61f1-4312-bd81-52be99e62265/Microsoft.WebView2.FixedVersionRuntime.157.0.4341.42.arm64.cab","sha256":"52CEA0F928554489ADE1B5631E7298D20E32A96D0BDE359F574AA045196A2BBD"},
+  "x86":{"url":"https://msedge.sf.dl.delivery.mp.microsoft.com/filestreamingservice/files/67a684f9-0ad9-4651-8687-570e472630f8/Microsoft.WebView2.FixedVersionRuntime.157.0.4341.42.x86.cab","sha256":"E158187AEC77C3C5138D3EEA1C9B871B93C78D12BA967A74811348CC5A8D7148"}
+ }
+}

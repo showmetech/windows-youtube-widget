@@ -1,0 +1,11 @@
+<Project>
+ <PropertyGroup>
+  <Version>$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)VERSION').Trim())</Version>
+  <Company>Showmetech</Company>
+  <Authors>Bruno Ayres Martinez</Authors>
+  <Product>YouTube Widget</Product>
+  <RepositoryUrl>https://github.com/showmetech/windows-youtube-widget</RepositoryUrl>
+  <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+  <Deterministic>true</Deterministic>
+ </PropertyGroup>
+</Project>

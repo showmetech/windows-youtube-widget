@@ -1,0 +1,155 @@
+name: Build, release and submit to Microsoft Store
+on:
+  push:
+    branches: [main]
+    paths: ['src/**','startup/**','extension/**','packaging/**','scripts/**','tests/**','VERSION','Directory.Build.props','global.json','.github/workflows/release.yml']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: youtube-widget-release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        architecture: [x64, x86, arm64]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build self-contained app and verified WebView2 runtime
+        shell: pwsh
+        run: ./scripts/Build.ps1 -Architecture '${{ matrix.architecture }}'
+      - name: Validate source, extension and executable
+        shell: pwsh
+        run: ./scripts/Test.ps1 -Architecture '${{ matrix.architecture }}'
+      - name: Install packaging tools if absent
+        shell: pwsh
+        run: |
+          if (-not (Test-Path (Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe'))) {
+            choco install innosetup --yes --no-progress
+            if ($LASTEXITCODE -ne 0) { throw 'Inno Setup installation failed.' }
+          }
+      - name: Build installer, portable archive and validated MSIX
+        shell: pwsh
+        run: ./scripts/Package.ps1 -Architecture '${{ matrix.architecture }}'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: distribution-${{ matrix.architecture }}
+          path: artifacts/
+          retention-days: 14
+  release:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: build
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    outputs:
+      version: ${{ steps.config.outputs.version }}
+      store_enabled: ${{ steps.config.outputs.store_enabled }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: distribution-*
+          path: artifacts
+          merge-multiple: true
+      - name: Resolve release and Store gates
+        id: config
+        shell: pwsh
+        run: |
+          $version=(Get-Content VERSION -Raw).Trim()
+          $store=Get-Content packaging/store-config.json -Raw | ConvertFrom-Json
+          "version=$version" >> $env:GITHUB_OUTPUT
+          $enabled=$store.enabled -and $store.firstPublicationComplete -and $store.unvirtualizedResourcesApproved -and $store.productId -and $store.identityName -and $store.publisher
+          "store_enabled=$($enabled.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+      - name: Prepare extension and provenance assets
+        shell: pwsh
+        run: |
+          $version='${{ steps.config.outputs.version }}'
+          Compress-Archive -Path extension/* -DestinationPath "artifacts/YouTubeWidget-$version-Chrome-development.zip"
+          $storeCopy=Join-Path $env:RUNNER_TEMP 'chrome-store-package'
+          New-Item -ItemType Directory -Path $storeCopy | Out-Null
+          Copy-Item extension/* $storeCopy -Recurse
+          $manifest=Get-Content "$storeCopy/manifest.json" -Raw | ConvertFrom-Json
+          $manifest.PSObject.Properties.Remove('key')
+          $manifest | ConvertTo-Json -Depth 20 | Set-Content "$storeCopy/manifest.json" -Encoding utf8
+          Compress-Archive -Path "$storeCopy/*" -DestinationPath "artifacts/YouTubeWidget-$version-Chrome-Web-Store.zip"
+          @{version=$version;sourceCommit=$env:GITHUB_SHA;repository=$env:GITHUB_REPOSITORY;runId=$env:GITHUB_RUN_ID;architectures=@('x64','x86','arm64');minimumWindowsBuild=19041;webView2Bundled=$true} | ConvertTo-Json | Set-Content artifacts/release-source.json -Encoding utf8
+          Get-ChildItem artifacts -File | Where-Object Extension -in @('.exe','.zip') | Sort-Object Name | ForEach-Object { '{0}  {1}' -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash,$_.Name } | Set-Content artifacts/SHA256SUMS.txt -Encoding ascii
+      - name: Publish immutable GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $version='${{ steps.config.outputs.version }}'
+          gh release view "v$version" --repo $env:GITHUB_REPOSITORY *> $null
+          if ($LASTEXITCODE -eq 0) { throw "Release v$version already exists. Bump VERSION; do not overwrite installer assets." }
+          $assets=@(Get-ChildItem artifacts -File | Where-Object { $_.Extension -in @('.exe','.zip') -or $_.Name -in @('SHA256SUMS.txt','release-source.json') } | ForEach-Object FullName)
+          gh release create "v$version" @assets --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title "YouTube Widget $version" --notes-file docs/RELEASE-NOTES.md
+          if ($LASTEXITCODE -ne 0) { throw 'GitHub release publication failed.' }
+  microsoft-store:
+    needs: release
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: distribution-*
+          path: artifacts
+          merge-multiple: true
+      - name: Set up Microsoft Store CLI
+        if: needs.release.outputs.store_enabled == 'true'
+        uses: microsoft/microsoft-store-apppublisher@v1.1
+      - name: Authenticate existing Store publisher
+        if: needs.release.outputs.store_enabled == 'true'
+        shell: pwsh
+        env:
+          STORE_TENANT: ${{ secrets.AZURE_AD_TENANT_ID }}
+          STORE_SELLER: ${{ secrets.SELLER_ID }}
+          STORE_CLIENT: ${{ secrets.AZURE_AD_APPLICATION_CLIENT_ID }}
+          STORE_SECRET: ${{ secrets.AZURE_AD_APPLICATION_SECRET }}
+        run: |
+          foreach($name in @('STORE_TENANT','STORE_SELLER','STORE_CLIENT','STORE_SECRET')) { if(-not [Environment]::GetEnvironmentVariable($name)){throw "Missing repository secret: $name"} }
+          msstore reconfigure --tenantId $env:STORE_TENANT --sellerId $env:STORE_SELLER --clientId $env:STORE_CLIENT --clientSecret $env:STORE_SECRET
+          if($LASTEXITCODE -ne 0){throw 'Store authentication failed.'}
+      - name: Submit matching multiarchitecture package
+        if: needs.release.outputs.store_enabled == 'true'
+        shell: pwsh
+        run: |
+          . ./scripts/Common.ps1
+          $version='${{ needs.release.outputs.version }}'
+          $store=Get-Content packaging/store-config.json -Raw | ConvertFrom-Json
+          $stage=Join-Path $env:RUNNER_TEMP 'store-bundle'
+          New-Item -ItemType Directory -Path $stage | Out-Null
+          Get-ChildItem artifacts -Filter '*.msix' | Where-Object Name -NotMatch 'development' | Copy-Item -Destination $stage
+          if(@(Get-ChildItem $stage -Filter '*.msix').Count -ne 3){throw 'All three Store architectures are required.'}
+          & (Find-WindowsSdkTool 'makeappx.exe') bundle /d $stage /p "artifacts/YouTubeWidget-$version.msixbundle" /bv "$version.0" /o
+          if($LASTEXITCODE -ne 0){throw 'Store bundle validation failed.'}
+          msstore publish "artifacts/YouTubeWidget-$version.msixbundle" -id $store.productId
+          if($LASTEXITCODE -ne 0){throw 'Microsoft Store submission failed.'}
+      - name: Record actual publication state
+        if: always()
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JOB_STATUS: ${{ job.status }}
+          STORE_ENABLED: ${{ needs.release.outputs.store_enabled }}
+        run: |
+          $version='${{ needs.release.outputs.version }}'
+          $state=if($env:STORE_ENABLED -ne 'true'){'blocked-onboarding'}elseif($env:JOB_STATUS -eq 'success'){'submitted'}else{'failed'}
+          @{version=$version;state=$state;sourceCommit=$env:GITHUB_SHA;at=[DateTimeOffset]::UtcNow.ToString('o');certification=if($state -eq 'submitted'){'pending Microsoft approval'}else{'not submitted'}} | ConvertTo-Json | Set-Content artifacts/store-submission.json -Encoding utf8
+          gh release upload "v$version" artifacts/store-submission.json --repo $env:GITHUB_REPOSITORY --clobber
+          if($LASTEXITCODE -ne 0){throw 'Store receipt publication failed.'}
+          "Store state for $version`: **$state**. Certification is a separate gate." >> $env:GITHUB_STEP_SUMMARY
