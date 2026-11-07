@@ -19,11 +19,11 @@ jobs:
       matrix:
         architecture: [x64, x86, arm64]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-dotnet@v6.1.0
         with:
           dotnet-version: '10.0.x'
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7.1.0
         with:
           node-version: '22'
       - name: Build self-contained app and verified WebView2 runtime
@@ -42,7 +42,7 @@ jobs:
       - name: Build installer, portable archive and validated MSIX
         shell: pwsh
         run: ./scripts/Package.ps1 -Architecture '${{ matrix.architecture }}'
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7.0.2
         with:
           name: distribution-${{ matrix.architecture }}
           path: artifacts/
@@ -57,8 +57,8 @@ jobs:
       version: ${{ steps.config.outputs.version }}
       store_enabled: ${{ steps.config.outputs.store_enabled }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/download-artifact@v8.0.2
         with:
           pattern: distribution-*
           path: artifacts
@@ -92,6 +92,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $version='${{ steps.config.outputs.version }}'
+          $head=gh api "repos/$env:GITHUB_REPOSITORY/commits/main" --jq .sha
+          if($LASTEXITCODE -ne 0 -or $head -ne $env:GITHUB_SHA){throw 'The main branch changed; do not publish a stale build.'}
           gh release view "v$version" --repo $env:GITHUB_REPOSITORY *> $null
           if ($LASTEXITCODE -eq 0) { throw "Release v$version already exists. Bump VERSION; do not overwrite installer assets." }
           $assets=@(Get-ChildItem artifacts -File | Where-Object { $_.Extension -in @('.exe','.zip') -or $_.Name -in @('SHA256SUMS.txt','release-source.json') } | ForEach-Object FullName)
@@ -103,8 +105,8 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/download-artifact@v8.0.2
         with:
           pattern: distribution-*
           path: artifacts

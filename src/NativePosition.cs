@@ -5,8 +5,10 @@ using System.Windows.Interop;
 using System.Windows.Media;
 namespace YouTubeWidget;
 internal static class NativePosition {
- internal static bool TaskbarExcluded(Window window)=>!window.ShowInTaskbar&&(GetWindowLongPtr(new WindowInteropHelper(window).Handle,-20).ToInt64()&0x40000)==0;
- [DllImport("user32.dll",EntryPoint="GetWindowLongPtrW")]static extern IntPtr GetWindowLongPtr(IntPtr hwnd,int index);
+ internal static bool TaskbarExcluded(Window window)=>!window.ShowInTaskbar&&(GetWindowStyle(new WindowInteropHelper(window).Handle,-20).ToInt64()&0x40000)==0;
+ internal static IntPtr GetWindowStyle(IntPtr hwnd,int index)=>IntPtr.Size==8?GetWindowLongPtr64(hwnd,index):new IntPtr(GetWindowLong32(hwnd,index));
+ [DllImport("user32.dll",EntryPoint="GetWindowLongPtrW")]static extern IntPtr GetWindowLongPtr64(IntPtr hwnd,int index);
+ [DllImport("user32.dll",EntryPoint="GetWindowLongW")]static extern int GetWindowLong32(IntPtr hwnd,int index);
  internal static void BottomRight(Window window,double desiredWidth,double desiredHeight) {
   var handle=new WindowInteropHelper(window).Handle;if(handle==IntPtr.Zero)return;
   var monitor=System.Windows.Forms.Screen.FromHandle(handle);var area=monitor.WorkingArea;var dpi=VisualTreeHelper.GetDpi(window);
