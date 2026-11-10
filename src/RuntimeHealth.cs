@@ -9,7 +9,7 @@ public sealed partial class MainWindow {
  long lastHealth;bool recoveringPlayer;readonly Queue<DateTimeOffset> playerFailures=new();
  void WriteHealth(){
   if(Environment.TickCount64-lastHealth<5000)return;lastHealth=Environment.TickCount64;
-  try{HandoffTransport.Write(Path.Combine(Preferences.Folder,"runtime-health.json"),new{At=DateTimeOffset.UtcNow,Pid=Environment.ProcessId,Version=typeof(App).Assembly.GetName().Version?.ToString(3),Responsive=true,Visible=IsVisible,TrayRegistered=tray?.TryBounds(out _)==true,PlayerReady=playerReady,Recovering=recoveringPlayer,TaskbarExcluded=NativePosition.TaskbarExcluded(this)});}catch(Exception error){App.Log(error);}
+  try{HandoffTransport.Write(Path.Combine(Preferences.Folder,"runtime-health.json"),new{At=DateTimeOffset.UtcNow,Pid=Environment.ProcessId,Version=typeof(App).Assembly.GetName().Version?.ToString(3),Responsive=true,Visible=IsVisible,TrayRegistered=tray?.TryBounds(out _)==true,PlayerReady=playerReady,Playing=playing,PlayEnabled=playButton.IsEnabled,PlaybackPending,Recovering=recoveringPlayer,TaskbarExcluded=NativePosition.TaskbarExcluded(this)});}catch(Exception error){App.Log(error);}
  }
  async Task RecoverPlayer(CoreWebView2ProcessFailedKind failure){
   if(exiting||recoveringPlayer)return;
@@ -23,7 +23,7 @@ public sealed partial class MainWindow {
     var probe=web.CoreWebView2.ExecuteScriptAsync("document.readyState");
     if(await Task.WhenAny(probe,Task.Delay(5000))==probe){await probe;return;}
    }
-   playerFailures.Enqueue(now);Save();playing=false;ready=false;playerReady=false;EnableTransport();
+   playerFailures.Enqueue(now);Save();CancelPlaybackRequest();playing=false;ready=false;playerReady=false;EnableTransport();
    prefs.PreserveCurrentVideo=true;SetStatus("Recuperando o player…",true);
    if(failure==CoreWebView2ProcessFailedKind.BrowserProcessExited){web.Reset();await Task.Delay(1000);await InitPlayer();}
    else web.CoreWebView2.Reload();

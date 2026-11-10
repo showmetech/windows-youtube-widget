@@ -1,4 +1,9 @@
-YouTube Widget 1.7.2
+YouTube Widget 1.7.3
+
+- Play now requests an explicit playback state, waits for actual video progress, and retries a missed command up to three times. Requests during player loading wait for readiness instead of silently doing nothing.
+- Hiding, changing videos, or an error cancels pending playback, preventing delayed playback after closing the widget. Playback failures produce visible feedback.
+- Allows only media autoplay requests from the embedded app/YouTube origins, without saving permissions in the profile. Other permission kinds remain denied.
+- Added real unmuted playback checks and a lost-first-command fault-injection regression. Native mouse retesting was interrupted by Windows access denial; simulated failure coverage does not prove its underlying cause.
 
 - Restores the app-folder native-host registration for unpackaged Windows installations after a reproduced Chrome "host not found" failure. Paused and playing transfers were verified against Chrome; the page pauses before the widget starts.
 - MSIX keeps its declared shared AppData registration; Microsoft Store certification is still pending.

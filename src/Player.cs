@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 using Microsoft.Web.WebView2.Core;
 namespace YouTubeWidget;
 public sealed partial class MainWindow {
- void PlayerCommand(string command){if(playerReady)web.CoreWebView2.PostWebMessageAsJson(JsonSerializer.Serialize(new{type=command}));Touch();}
+ void PlayerCommand(string command){if(command=="toggle"){_ = TogglePlayback();return;}if(playerReady)web.CoreWebView2.PostWebMessageAsJson(JsonSerializer.Serialize(new{type=command}));Touch();}
  internal async Task InitPlayer() {
   try {
    await StoreIntegration.PrepareRuntime();
    var env=await CoreWebView2Environment.CreateAsync(File.Exists(Path.Combine(AppContext.BaseDirectory,"WebView2Runtime","msedgewebview2.exe"))?Path.Combine(AppContext.BaseDirectory,"WebView2Runtime"):null,Path.Combine(Preferences.Folder,"Browser"));await web.EnsureCoreWebView2Async(env);
    var core=web.CoreWebView2;core.ProcessFailed+=async(_,e)=>await RecoverPlayer(e.ProcessFailedKind);core.Settings.AreDevToolsEnabled=App.Testing;core.Settings.IsStatusBarEnabled=false;core.Settings.AreHostObjectsAllowed=false;
-   core.PermissionRequested+=(_,e)=>e.State=CoreWebView2PermissionState.Deny;core.DownloadStarting+=(_,e)=>e.Cancel=true;
+   core.PermissionRequested+=(_,e)=>{e.SavesInProfile=false;e.State=PlaybackPermissions.Decide(e.PermissionKind,e.Uri);if(App.Testing)playbackPermissions.Add(e.PermissionKind+":"+e.Uri+":"+e.State);};core.DownloadStarting+=(_,e)=>e.Cancel=true;
    core.SetVirtualHostNameToFolderMapping("com.bruno.youtube-widget",Path.Combine(AppContext.BaseDirectory,"Web"),CoreWebView2HostResourceAccessKind.DenyCors);
    core.NewWindowRequested+=(_,e)=>{e.Handled=true;External(e.Uri);};
    core.NavigationStarting+=(_,e)=>{if(!e.Uri.StartsWith("https://com.bruno.youtube-widget/",StringComparison.Ordinal)){e.Cancel=true;SetStatus("Use Abrir vídeo no navegador para acessar o YouTube.");}};
@@ -23,7 +23,8 @@ public sealed partial class MainWindow {
      if(type=="ready"){playerReady=true;EnableTransport();SetStatus("Pronto para assistir · pressione ▶ no vídeo.");LogPlayer("player-ready");if(App.Testing&&args.Contains("--play-test"))await core.ExecuteScriptAsync("player.mute();player.playVideo();");}
      else if(type=="state"){int state=r.GetProperty("state").GetInt32();playing=state is 1 or 3;if(playButton.Content is System.Windows.Controls.TextBlock glyph)glyph.Text=playing?"\uE769":"\uE768";playButton.ToolTip=playing?"Pausar vídeo":"Reproduzir vídeo";System.Windows.Automation.AutomationProperties.SetName(playButton,(string)playButton.ToolTip);if(playing){SetStatus("Reproduzindo");LogPlayer("playing");}else if(state==2){SetStatus("Pausado");LogPlayer("paused");}if(state==0&&prefs.ContinueQueue&&current?.Playlist.Length==0)await NextVideo();}
      else if(type=="audio"){muted=r.GetProperty("muted").GetBoolean();if(muteButton.Content is System.Windows.Controls.TextBlock glyph)glyph.Text=muted?"\uE74F":"\uE767";muteButton.ToolTip=muted?"Ativar som":"Desativar som";System.Windows.Automation.AutomationProperties.SetName(muteButton,(string)muteButton.ToolTip);}
-     else if(type=="error"){playerReady=false;EnableTransport();int code=r.GetProperty("code").GetInt32();SetStatus(code switch{101 or 150=>"O autor não permite reprodução aqui. Abra no navegador.",100=>"Vídeo indisponível. Abra no navegador.",153=>"YouTube recusou o player. Abra no navegador.",_=>"Não foi possível reproduzir ("+code+"). Abra no navegador."});LogPlayer("error-"+code);}
+     else if(type=="error"){CancelPlaybackRequest();playerReady=false;EnableTransport();int code=r.GetProperty("code").GetInt32();SetStatus(code switch{101 or 150=>"O autor não permite reprodução aqui. Abra no navegador.",100=>"Vídeo indisponível. Abra no navegador.",153=>"YouTube recusou o player. Abra no navegador.",_=>"Não foi possível reproduzir ("+code+"). Abra no navegador."});LogPlayer("error-"+code);}
+     else if(type=="autoplayBlocked"){autoplayBlocked=true;CancelPlaybackRequest();SetStatus("O player bloqueou a reprodução. Tente o botão de reprodução no vídeo.",true);}
      else if(type=="network")SetStatus("Sem conexão com o YouTube. Tente abrir novamente.");
      else if(type=="progress") {
       ReceiveProgress(r);
@@ -35,7 +36,7 @@ public sealed partial class MainWindow {
    };
    core.NavigationCompleted+=async(_,e)=>{
     if(!e.IsSuccess){SetStatus("Não foi possível iniciar o player.");return;}ready=true;LogPlayer("page-loaded");await CheckHandoff();if(handoffToken.Length>0)return;
-    if(args.Contains("--probe"))await Load(new Video("M7lc1UVf-VE"));
+    if(args.Contains("--probe")){int testVideo=Array.IndexOf(args,"--playback-video");await Load(testVideo>=0&&testVideo+1<args.Length?Video.Parse(args[testVideo+1]):new Video("M7lc1UVf-VE"));}
     else if(prefs.Last!=null)await Load(prefs.Last,preserveSource:true);
     await CheckRecommendation();
    };
@@ -44,12 +45,12 @@ public sealed partial class MainWindow {
  }
  internal Task Load(Video video,bool autoplay=false,bool recordHistory=true,bool preserveSource=false) {
   if(!ready){SetStatus("Aguarde o player iniciar.");return Task.CompletedTask;}
-  if(!preserveSource)prefs.PreserveCurrentVideo=false;if(recordHistory)RememberVideo(video);playlistIndex=-1;playlistCount=0;
+  CancelPlaybackRequest();if(!preserveSource)prefs.PreserveCurrentVideo=false;if(recordHistory)RememberVideo(video);playlistIndex=-1;playlistCount=0;
   contextLabel.Text="VÍDEO";current=video;prefs.Last=video;input.Text=video.Url;playing=false;playerReady=false;seek.IsEnabled=false;EnableTransport();elapsed.Text=duration.Text="0:00";Save();UpdateActions();
   videoTitle.Text=prefs.Titles.GetValueOrDefault(video.Id,"Carregando vídeo…");
   web.CoreWebView2.PostWebMessageAsJson(JsonSerializer.Serialize(new{type="load",video,autoplay}));SetStatus("Carregando vídeo…");return Task.CompletedTask;
  }
- void PausePlayer(){if(ready)web.CoreWebView2.PostWebMessageAsJson("{\"type\":\"pause\"}");playing=false;}
+ void PausePlayer(){CancelPlaybackRequest();if(ready)web.CoreWebView2.PostWebMessageAsJson("{\"type\":\"pause\"}");playing=false;}
  internal async Task CheckRecommendation(bool fromTray=false) {
   if(trayRefreshActive&&!fromTray)return;
   if(!ready||handoffActive||!prefs.RecommendationsEnabled||!File.Exists(Recommendations.PathName))return;

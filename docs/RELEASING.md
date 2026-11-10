@@ -12,6 +12,8 @@ Use PowerShell 7, .NET 10 SDK, Node.js, Inno Setup 6 and Windows SDK:
 
 Repeat for x86 and arm64. An ARM64 compilation is not an ARM64 hardware test. UI tests need an interactive desktop and network access to the public YouTube test video. CI runs source/extension/native-parser checks; physical hardware and actual playback have separate evidence.
 
+For playback changes, run scripts/Test-Playback.ps1 with a fresh isolated profile. Use -Video VIDEO_ID for the affected video and -DropFirstPlay to simulate one ignored iframe play call. The latter is fault injection; report it separately from ordinary real playback and physical mouse input. The test must start unmuted, observe time advancing, verify pause/resume, and verify pending playback cannot restart after hiding.
+
 Build.ps1 verifies the pinned official WebView2 CAB SHA-256 and Microsoft's executable signature, and includes its complete contents and license notices. Update packaging/webview2-runtime.json during reviewed runtime updates. Redistribution authorization was given on 2026-11-07. Do not silently download an unpinned latest binary.
 
 Package.ps1 creates an EXE installer, portable ZIP and schema-validated MSIX per architecture. Without assigned Partner Center identity, the MSIX is explicitly an unsigned development artifact, not Store-ready or a regular sideload installer.

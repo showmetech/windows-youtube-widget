@@ -27,8 +27,8 @@ public sealed partial class MainWindow {
   input.Text="https://example.com/";await OpenInput();result["InvalidLinkPreservesVideo"]=current?.Id=="M7lc1UVf-VE";result["InvalidLinkShowsFeedback"]=status.Visibility==Visibility.Visible;
   prefs.Theme="Light";ApplyAppearance();ShowSettings();await Task.Delay(300);result["LightInputContrast"]=input.Foreground.ToString()==Application.Current.Resources["Ink"].ToString();CloseSettings(false);prefs.Theme="Dark";ApplyAppearance();ShowSettings();await Task.Delay(300);result["LibraryReparenting"]=PanelVisible&&library.Parent!=null&&input.Parent!=null;CloseSettings(false);
   await Load(new Video("M7lc1UVf-VE"));await Task.Delay(4000);
-  muteButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));await Task.Delay(700);
-  playButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));for(int i=0;i<20&&!playing;i++)await Task.Delay(500);result["PlayButton"]=playing;
+  if(muted)muteButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));await Task.Delay(700);
+  playButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));for(int i=0;i<20&&!playing;i++)await Task.Delay(500);result["PlayButton"]=playing;result["PlayButtonStartsWithSound"]=playing&&!muted;
   if(!muted)muteButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));for(int i=0;i<12&&!muted;i++)await Task.Delay(500);result["MuteButton"]=muted;
   playButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));await Task.Delay(700);
   seek.Value=42;await Task.Delay(900);double actualTime=System.Text.Json.JsonSerializer.Deserialize<double>(await web.CoreWebView2.ExecuteScriptAsync("player.getCurrentTime()"));result["SeekSliderControlsPlayer"]=Math.Abs(actualTime-42)<3;
