@@ -1,5 +1,5 @@
 #ifndef AppVersion
- #define AppVersion "1.7.1"
+ #define AppVersion "1.7.2"
 #endif
 #ifndef TargetArchitecture
  #define TargetArchitecture "x64"
@@ -47,6 +47,7 @@ Name: "{autodesktop}\YouTube Widget"; Filename: "{app}\WindowsYouTubeWidget.exe"
 [Run]
 Filename: "{app}\WindowsYouTubeWidget.exe"; Description: "Abrir YouTube Widget"; Flags: nowait postinstall skipifsilent
 [UninstallDelete]
+Type: files; Name: "{app}\native-host.json"
 Type: files; Name: "{localappdata}\WindowsYouTubeWidget\NativeMessaging\native-host.json"
 [Code]
 procedure DisableManifest(Path: String);

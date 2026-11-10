@@ -15,7 +15,10 @@ internal static class StoreIntegration {
  // The Store manifest declares narrowly scoped HKCU/AppData interoperability.
  // The same manifest is refreshed after upgrades, because WindowsApps paths change.
  internal static void RegisterNativeHost(){
-  var folder=Path.Combine(Preferences.Folder,"NativeMessaging");Directory.CreateDirectory(folder);
+  // Keep the unpackaged host manifest beside its executable. This is the
+  // registration verified by Chrome for the per-user installer/portable app.
+  // MSIX installations are read-only and use their declared shared AppData path.
+  var folder=IsPackaged?Path.Combine(Preferences.Folder,"NativeMessaging"):AppContext.BaseDirectory;Directory.CreateDirectory(folder);
   var file=Path.Combine(folder,"native-host.json");var temporary=file+"."+Guid.NewGuid().ToString("N")+".tmp";
   var json=JsonSerializer.Serialize(new{name=Recommendations.Host,description="YouTube Widget local",path=Environment.ProcessPath,type="stdio",allowed_origins=new[]{"chrome-extension://odeinjoocooeglaocjionmegdgabmojb/","chrome-extension://iophndcddlmmaaanhaiiioaanpgeigak/"}});
   File.WriteAllText(temporary,json,new UTF8Encoding(false));File.Move(temporary,file,true);

@@ -1,4 +1,7 @@
-YouTube Widget 1.7.1
+YouTube Widget 1.7.2
+
+- Restores the app-folder native-host registration for unpackaged Windows installations after a reproduced Chrome "host not found" failure. Paused and playing transfers were verified against Chrome; the page pauses before the widget starts.
+- MSIX keeps its declared shared AppData registration; Microsoft Store certification is still pending.
 
 - Handles GitHub checksum downloads correctly when PowerShell returns binary response content. Installer hashes are always verified before execution.
 

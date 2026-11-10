@@ -16,6 +16,8 @@ Build.ps1 verifies the pinned official WebView2 CAB SHA-256 and Microsoft's exec
 
 Package.ps1 creates an EXE installer, portable ZIP and schema-validated MSIX per architecture. Without assigned Partner Center identity, the MSIX is explicitly an unsigned development artifact, not Store-ready or a regular sideload installer.
 
+Unpackaged installations register native-host.json beside the executable. MSIX uses its declared shared AppData/NativeMessaging directory because the package directory is read-only. Validate the real Chrome handoff after installation; valid JSON and registry readback alone do not prove browser discovery.
+
 ## Every desktop update performed by Codex
 
 1. Bump VERSION and update release notes. Review public files; preserve human changes. Do not publish workspace output trees or local profiles.
