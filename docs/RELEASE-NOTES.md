@@ -1,3 +1,10 @@
+# 1.7.4
+
+- Remove o cabeçalho do widget: o vídeo começa no topo, sem o nome YouTube.
+- Agrupa configurações, fixar e tamanho à esquerda da base; reprodução centralizada; som e recolher à direita.
+- Reduz a altura e verifica alinhamento sem sobreposição nos dois tamanhos e com escala de texto de até 200%.
+- Mantém avisos de reprodução em uma linha temporária, sem título permanente.
+
 YouTube Widget 1.7.3
 
 - Play now requests an explicit playback state, waits for actual video progress, and retries a missed command up to three times. Requests during player loading wait for readiness instead of silently doing nothing.

@@ -15,9 +15,9 @@ internal static class SuiteVerification {
    await Task.Delay(600);w.UpdateLayout();
    checks["StartsExpanded"]=Math.Abs(w.Width-640)<1;
    w.prefs.ExpandedPlayer=false;w.Position();w.UpdateLayout();
-   checks["StandardWidth"]=Math.Abs(w.Width-360)<1;checks["StandardHeight"]=w.Height>=310&&w.Height<=325;
+   checks["StandardWidth"]=Math.Abs(w.Width-360)<1;checks["StandardHeight"]=w.Height>=280&&w.Height<=290;
    checks["MainExcludedFromTaskbar"]=NativePosition.TaskbarExcluded(w);
-   checks["HeaderAlignment"]=SuiteChrome.Aligned(w,false,40);checks["TransparentWindow"]=w.AllowsTransparency&&w.Background==Brushes.Transparent;
+   checks["FooterAlignment"]=w.FooterLayoutValid();checks["TransparentWindow"]=w.AllowsTransparency&&w.Background==Brushes.Transparent;
    checks["OpaqueContent"]=w.Opacity==1;checks["RoundedSurface"]=w.surface.CornerRadius.TopLeft==8;
    checks["PlayerViewport"]=w.web.Mode is "Composition" or "OwnedOpaqueViewport";
    checks["PinSeparateFromTopmost"]=w.prefs.Pinned&&!w.Topmost;
@@ -28,7 +28,7 @@ internal static class SuiteVerification {
    checks["SameWidth"]=Math.Abs(w.settingsWindow!.Width-w.Width)<1;
    w.settingsScroll!.ScrollToEnd();w.settingsWindow.UpdateLayout();checks["SettingsBottomReachable"]=Math.Abs(w.settingsScroll.VerticalOffset-w.settingsScroll.ScrollableHeight)<1;
    checks["NoHorizontalScroll"]=w.settingsScroll.ScrollableWidth<1;checks["NoVisibleScrollbar"]=w.settingsScroll.VerticalScrollBarVisibility==ScrollBarVisibility.Hidden;
-   foreach(double scale in new[]{1.5,2.0}){w.ApplyTextScale(scale);w.UpdateLayout();w.settingsWindow!.UpdateLayout();checks["TextScale"+scale]=(w.surface.Child is Grid scaled&&Math.Abs(scaled.RowDefinitions[0].ActualHeight-40*scale)<1&&w.settingsScroll.ScrollableWidth<1);}w.ApplyTextScale(1);
+   foreach(double scale in new[]{1.5,2.0}){w.ApplyTextScale(scale);w.UpdateLayout();w.settingsWindow!.UpdateLayout();checks["TextScale"+scale]=(w.FooterLayoutValid()&&w.settingsScroll.ScrollableWidth<1);}w.ApplyTextScale(1);
    foreach(var theme in new[]{"Light","Dark","System"}){w.prefs.Theme=theme;w.ApplyAppearance();checks["Theme"+theme]=Application.Current.Resources["Ink"] is SolidColorBrush;}
    foreach(var material in new[]{0,1,2}){w.prefs.Material=material;w.ApplyAppearance();checks["Material"+material]=w.surface.Background is SolidColorBrush brush&&brush.Color.A>0;}
    w.prefs.Theme="System";w.prefs.Material=0;w.prefs.ExpandedPlayer=true;w.Position();checks["ExpandedWidth"]=w.Width>360;w.prefs.ExpandedPlayer=false;

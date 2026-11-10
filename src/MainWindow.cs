@@ -45,24 +45,22 @@ public sealed partial class MainWindow:Window {
  internal bool Animate=>prefs.Animations&&SystemParameters.ClientAreaAnimation;
  public MainWindow(string[] args) {
   prefs.ExpandedPlayer=true;
-  this.args=args;Title="YouTube Widget";Width=640;Height=479;MinWidth=1;MinHeight=1;
+  this.args=args;Title="YouTube Widget";Width=640;Height=439;MinWidth=1;MinHeight=1;
   WindowStyle=WindowStyle.None;AllowsTransparency=true;Background=Brushes.Transparent;ResizeMode=ResizeMode.NoResize;
   ShowInTaskbar=false;FontFamily=new("Segoe UI Variable, Segoe UI");FontSize=14;UseLayoutRounding=true;SnapsToDevicePixels=true;
   SetResourceReference(ForegroundProperty,"Ink");surface.SetResourceReference(Border.BorderBrushProperty,"BorderLine");Content=surface;
-  var layout=new Grid();layout.RowDefinitions.Add(new(){Height=new(40)});layout.RowDefinitions.Add(new(){Height=new(1,GridUnitType.Star)});surface.Child=layout;
+  var layout=new Grid();surface.Child=layout;
   config=IconButton("\uE713","Configurações",ToggleSettings);
   pin=IconButton("\uE718","Manter aberto",()=>{prefs.Pinned=!prefs.Pinned;Touch();Save();UpdateActions();});
   close=IconButton("\uE8BB","Recolher para a bandeja",HideWidget);
-  var header=SuiteChrome.Header(Text("YouTube",16,true),config,pin,close);header.Height=40;header.Background=Brushes.Transparent;
-  header.MouseLeftButtonDown+=(_,e)=>{if(e.OriginalSource is TextBlock t&&!t.FontFamily.Source.Contains("Icons"))DragMove();};layout.Children.Add(header);
-  var body=new StackPanel{Margin=new(0,0,0,8)};Grid.SetRow(body,1);layout.Children.Add(body);
+  var body=new StackPanel{Margin=new(0,0,0,8)};layout.Children.Add(body);
   playerFrame.Child=web;playerFrame.SizeChanged+=(_,_)=>playerFrame.Clip=new RectangleGeometry(new Rect(0,0,playerFrame.ActualWidth,playerFrame.ActualHeight),8,8);body.Children.Add(playerFrame);
   contextLabel.Visibility=Visibility.Collapsed;
   playButton=IconButton("\uE768","Reproduzir vídeo",()=>PlayerCommand("toggle"));
   muteButton=IconButton("\uE767","Desativar som",()=>PlayerCommand("mute"));
   star=IconButton("\uE734","Salvar nos favoritos",Favorite);
   expand=IconButton("\uE740","Ampliar vídeo",()=>{prefs.ExpandedPlayer=!prefs.ExpandedPlayer;Position();Save();UpdateActions();});
-  playerFooter.SetResourceReference(Panel.BackgroundProperty,"PlayerChrome");BuildTimeline(playerFooter);BuildTransport(playerFooter);body.Children.Add(playerFooter);
+  playerFooter.SetResourceReference(Panel.BackgroundProperty,"PlayerChrome");BuildFeedback(playerFooter);BuildTimeline(playerFooter);BuildTransport(playerFooter);body.Children.Add(playerFooter);
   library.SetResourceReference(ForegroundProperty,"Ink");library.MaxHeight=145;library.MouseDoubleClick+=async(_,_)=>await OpenSelected();
   library.KeyDown+=async(_,e)=>{if(e.Key==Key.Enter)await OpenSelected();if(e.Key==Key.Delete)RemoveSelected();};
   input.ToolTip="Link de vídeo, Shorts, live ou playlist";AutomationProperties.SetName(input,"Link do YouTube");input.KeyDown+=async(_,e)=>{if(e.Key==Key.Enter)await OpenInput();};
@@ -104,9 +102,9 @@ public sealed partial class MainWindow:Window {
  async Task Next(){if(prefs.Queue.Count==0){SetStatus("Fila vazia. Adicione links nas configurações.",true);return;}var next=prefs.Queue[0];prefs.Queue.RemoveAt(0);Save();RefreshLibrary();await Load(next,true);}
  internal void Touch()=>interaction=Environment.TickCount64;
  internal void CheckIdle(){if(!App.Testing&&tray!=null&&!handoffActive&&!trayRefreshActive&&!prefs.Pinned&&IsVisible&&!PanelVisible&&!animating&&!SuiteActivation.MenuOpen&&!IsMouseCaptureWithin&&Environment.TickCount64-interaction>=20000)HideWidget();}
- void SetStatus(string value,bool feedback=false){feedbackTimeout.Stop();status.Text=value;status.ToolTip=value;videoTitle.ToolTip=videoTitle.Text+"\n"+contextLabel.Text+"\n"+value;bool error=value.Contains("Não foi possível")||value.Contains("indisponível")||value.Contains("não permite")||value.Contains("Sem conexão")||value.Contains("recusou")||value.Contains("Instale o");var show=error||feedback?Visibility.Visible:Visibility.Collapsed;status.Visibility=show;videoTitle.Visibility=show==Visibility.Visible?Visibility.Collapsed:Visibility.Visible;if(feedback)feedbackTimeout.Start();}
+ void SetStatus(string value,bool feedback=false){feedbackTimeout.Stop();status.Text=value;status.ToolTip=value;videoTitle.ToolTip=videoTitle.Text+"\n"+contextLabel.Text+"\n"+value;bool error=value.Contains("Não foi possível")||value.Contains("indisponível")||value.Contains("não permite")||value.Contains("Sem conexão")||value.Contains("recusou")||value.Contains("Instale o");var show=error||feedback?Visibility.Visible:Visibility.Collapsed;status.Visibility=show;videoTitle.Visibility=show==Visibility.Visible?Visibility.Collapsed:Visibility.Visible;titleFrame.Visibility=show;timeline.Visibility=show==Visibility.Visible?Visibility.Collapsed:Visibility.Visible;if(feedback)feedbackTimeout.Start();}
  internal void Save(){try{prefs.Save();}catch(Exception e){SetStatus("Não foi possível salvar as preferências.");App.Log(e);}}
- internal void Position(){if(!IsLoaded)return;double width=prefs.ExpandedPlayer?640:360;volume.Width=prefs.ExpandedPlayer?64:40;if(transport.ColumnDefinitions.Count==3)transport.ColumnDefinitions[0].Width=transport.ColumnDefinitions[2].Width=new GridLength(prefs.ExpandedPlayer?136:112);double videoHeight=Math.Max(200,(width-2)*9/16);double chrome=120+(textScale-1)*110;NativePosition.BottomRight(this,width,videoHeight+chrome);playerFrame.Height=Math.Max(200,(Width-2)*9/16);if(PanelVisible)SuitePlacement.Above(this,settingsWindow!);}
+ internal void Position(){if(!IsLoaded)return;double width=prefs.ExpandedPlayer?640:360;volume.Width=prefs.ExpandedPlayer?64:40;if(transport.ColumnDefinitions.Count==3)transport.ColumnDefinitions[0].Width=transport.ColumnDefinitions[2].Width=new GridLength(prefs.ExpandedPlayer?136:112);double videoHeight=Math.Max(200,(width-2)*9/16);double chrome=10+70*textScale;NativePosition.BottomRight(this,width,videoHeight+chrome);playerFrame.Height=Math.Max(200,(Width-2)*9/16);if(PanelVisible)SuitePlacement.Above(this,settingsWindow!);}
  internal void ShowWidget(){if(exiting)return;if(IsVisible&&!animating){Position();Activate();Touch();return;}animating=false;if(!App.Testing)SuiteActivation.Claim();base.Show();WindowState=WindowState.Normal;Position();ApplyAppearance();Activate();Touch();web.Suspend(false);Reveal(this,true,()=>web.SetRevealHeight(null));}
  internal void OpenFromTray(){ShowWidget();_ = RefreshOnTrayOpen();}
  void ToggleWidget(){if(IsVisible)HideWidget();else OpenFromTray();}
