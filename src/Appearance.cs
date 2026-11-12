@@ -30,7 +30,7 @@ public sealed partial class MainWindow {
   foreach(var pair in new[]{(window:(Window)this,border:surface),(window:settingsWindow,border:settingsSurface)}) {
    if(pair.window==null||pair.border==null)continue;
    pair.window.Topmost=prefs.AlwaysOnTop;var hwnd=new WindowInteropHelper(pair.window).Handle;if(hwnd==IntPtr.Zero)continue;
-   int material=pair.window==settingsWindow&&prefs.Material==0?1:prefs.Material;
+   int material=prefs.Material;
    pair.border.Background=!transparency||contrast?(contrast?SystemColors.WindowBrush:B(light?"#F3F3F3":"#202020")):SuiteWindow.Material(pair.window,HwndSource.FromHwnd(hwnd),material,light,transparency,contrast,out _);
    NativePosition.Decorate(pair.window,!light);
   }

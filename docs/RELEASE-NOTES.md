@@ -1,3 +1,9 @@
+# 1.7.5
+
+- A opção padrão de aparência agora é Opaco · 100%, no widget e nas configurações.
+- Mantém as opções de transparência suave e intensa para escolha manual.
+- Verifica opacidade total nos temas claro, escuro e do sistema.
+
 # 1.7.4
 
 - Remove o cabeçalho do widget: o vídeo começa no topo, sem o nome YouTube.

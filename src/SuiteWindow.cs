@@ -10,7 +10,7 @@ internal static class SuiteWindow {
  public static Brush Material(Window window,HwndSource source,int material,bool light,bool transparency,bool contrast,out bool success){
   success=!contrast;window.Background=Brushes.Transparent;if(source!=null)source.CompositionTarget.BackgroundColor=Colors.Transparent;
   if(contrast)return SystemColors.WindowBrush;
-  byte alpha=material==1?(byte)210:material==2?(byte)145:(byte)180;
+  byte alpha=material==1?(byte)210:material==2?(byte)145:(byte)255;
   return new SolidColorBrush(light?Color.FromArgb(alpha,243,243,243):Color.FromArgb(alpha,32,32,32));
  }
  [StructLayout(LayoutKind.Sequential)]struct Margins{public int Left,Right,Top,Bottom;}
