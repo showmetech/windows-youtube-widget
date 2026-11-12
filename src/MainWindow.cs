@@ -26,7 +26,6 @@ public sealed partial class MainWindow:Window {
  readonly DispatcherTimer tick=new(){Interval=TimeSpan.FromSeconds(1)};
  readonly DispatcherTimer feedbackTimeout=new(){Interval=TimeSpan.FromSeconds(5)};
  readonly Button pin,config,close,expand,star,playButton,muteButton;
- internal ScrollViewer? settingsScroll;
  internal Window? settingsWindow;
  internal Border? settingsSurface;
  NativeTray? tray;
@@ -61,7 +60,7 @@ public sealed partial class MainWindow:Window {
   star=IconButton("\uE734","Salvar nos favoritos",Favorite);
   expand=IconButton("\uE740","Ampliar vídeo",()=>{prefs.ExpandedPlayer=!prefs.ExpandedPlayer;Position();Save();UpdateActions();});
   playerFooter.SetResourceReference(Panel.BackgroundProperty,"PlayerChrome");BuildFeedback(playerFooter);BuildTimeline(playerFooter);BuildTransport(playerFooter);body.Children.Add(playerFooter);
-  library.SetResourceReference(ForegroundProperty,"Ink");library.MaxHeight=145;library.MouseDoubleClick+=async(_,_)=>await OpenSelected();
+  library.SetResourceReference(ForegroundProperty,"Ink");library.MaxHeight=145;library.SelectionChanged+=(_,_)=>UpdateLibraryActions();library.MouseDoubleClick+=async(_,_)=>await OpenSelected();
   library.KeyDown+=async(_,e)=>{if(e.Key==Key.Enter)await OpenSelected();if(e.Key==Key.Delete)RemoveSelected();};
   input.ToolTip="Link de vídeo, Shorts, live ou playlist";AutomationProperties.SetName(input,"Link do YouTube");input.KeyDown+=async(_,e)=>{if(e.Key==Key.Enter)await OpenInput();};
   PreviewMouseMove+=(_,_)=>Touch();PreviewMouseDown+=(_,_)=>Touch();PreviewMouseWheel+=(_,_)=>Touch();
@@ -81,7 +80,7 @@ public sealed partial class MainWindow:Window {
   Position();appearanceSignature="";ApplyAppearance();InitializeAccessibility();
   tick.Tick+=async(_,_)=>{EnsureTray();WriteHealth();if(!WindowRevealAnimation.IsRunning)ApplyAppearance();await CheckHandoff();await CheckRecommendation();CheckIdle();if(args.Contains("--inspect")){try{File.WriteAllText(Path.Combine(Preferences.Folder,"ui-state.json"),System.Text.Json.JsonSerializer.Serialize(new{At=DateTimeOffset.Now,Visible=IsVisible,Width=ActualWidth,Height=ActualHeight,TrayRegistered=tray?.TryBounds(out _)==true,PlayerMode=web.Mode,Playing=playing,Muted=muted,PanelVisible,TaskbarExcluded=NativePosition.TaskbarExcluded(this),SeekSeconds=seek.Value,Duration=seek.Maximum,Volume=volume.Value,TrayIcon=tray?.IconFile,VideoId=current?.Id,PreviousEnabled=backButton.IsEnabled,NextEnabled=forwardButton.IsEnabled,RecommendedCount=prefs.Recommended.Count,QueueCount=prefs.Queue.Count,HistoryIndex=prefs.HistoryIndex}));}catch{}}};tick.Start();
   if(args.Contains("--startup")){base.Hide();NativePosition.Cloak(this,false);}else Reveal(this,true);
-  await InitPlayer();if(args.Contains("--audible-play-test"))await VerifyAudiblePlayback();if(args.Contains("--animation-test"))await VerifyAnimations();if(args.Contains("--layout-test"))await VerifyControlLayout();if(args.Contains("--suite-test"))await SuiteVerification.Run(this);if(args.Contains("--recovery-test"))await VerifyPlayerRecovery();
+  await InitPlayer();if(args.Contains("--settings-layout-test"))await VerifySettingsLayout();if(args.Contains("--audible-play-test"))await VerifyAudiblePlayback();if(args.Contains("--animation-test"))await VerifyAnimations();if(args.Contains("--layout-test"))await VerifyControlLayout();if(args.Contains("--suite-test"))await SuiteVerification.Run(this);if(args.Contains("--recovery-test"))await VerifyPlayerRecovery();
  }
  internal static TextBlock Text(string value,double size=14,bool bold=false,string brush="Ink",Thickness? margin=null) {
   var t=new TextBlock{Text=value,FontSize=size,FontWeight=bold?FontWeights.SemiBold:FontWeights.Normal,TextWrapping=TextWrapping.Wrap,VerticalAlignment=VerticalAlignment.Center,Margin=margin??new()};t.SetResourceReference(TextBlock.ForegroundProperty,brush);return t;
@@ -97,14 +96,20 @@ public sealed partial class MainWindow:Window {
  void QueueCurrent(){if(current==null)return;prefs.Queue.Add(current);Save();RefreshLibrary();SetStatus("Adicionado à fila.",true);}
  async Task OpenSelected(){if(library.SelectedItem is ListBoxItem item&&item.Tag is Video v)await Load(v);}
  void RemoveSelected(){if(library.SelectedItem is not ListBoxItem item||item.Tag is not Video v){SetStatus("Selecione um vídeo na lista.",true);return;}(listKind=="Fila"?prefs.Queue:prefs.Favorites).Remove(v);Save();RefreshLibrary();UpdateActions();SetStatus("Vídeo removido da lista.",true);}
- void RefreshLibrary(){if(backButton!=null)EnableTransport();library.Items.Clear();var items=listKind=="Fila"?prefs.Queue:prefs.Favorites;foreach(var v in items){var title=prefs.Titles.GetValueOrDefault(v.Id,v.Label);library.Items.Add(new ListBoxItem{Content=Text(title,12),Tag=v,ToolTip=title,Padding=new(4,6,4,6)});}if(items.Count==0)library.Items.Add(new ListBoxItem{Content=Text(listKind=="Fila"?"Sua fila está vazia.":"Salve vídeos para encontrar depois.",12,false,"SecondaryInk"),IsEnabled=false});}
+ void RefreshLibrary(){
+  if(backButton!=null)EnableTransport();library.Items.Clear();var items=listKind=="Fila"?prefs.Queue:prefs.Favorites;int pages=Math.Max(1,(items.Count+LibraryPageSize-1)/LibraryPageSize);libraryPage=Math.Clamp(libraryPage,0,pages-1);
+  foreach(var v in items.Skip(libraryPage*LibraryPageSize).Take(LibraryPageSize)){var title=prefs.Titles.GetValueOrDefault(v.Id,v.Label);var text=Text(title,12);text.TextWrapping=TextWrapping.NoWrap;text.TextTrimming=TextTrimming.CharacterEllipsis;library.Items.Add(new ListBoxItem{Content=text,Tag=v,ToolTip=title,Padding=new(4,6,4,6),HorizontalContentAlignment=HorizontalAlignment.Stretch});}
+  if(items.Count==0)library.Items.Add(new ListBoxItem{Content=Text(listKind=="Fila"?"Sua fila está vazia.":"Nenhum favorito salvo.",12,false,"SecondaryInk"),IsEnabled=false});
+  if(textScale>1)ScaleTree(library);UpdateLibraryActions();if(libraryTabs!=null)foreach(Button choice in libraryTabs.Children){bool active=(string?)choice.Tag==listKind;choice.SetResourceReference(Control.BackgroundProperty,active?"Accent":"TileBrush");choice.SetResourceReference(Control.ForegroundProperty,active?"AccentInk":"Ink");}
+  if(libraryPageLabel!=null)libraryPageLabel.Text=$"{listKind} · {items.Count} vídeos · {libraryPage+1}/{pages}";if(libraryPrevious!=null)libraryPrevious.IsEnabled=libraryPage>0;if(libraryNext!=null)libraryNext.IsEnabled=libraryPage+1<pages;
+ }
  async Task OpenInput(){try{var v=Video.Parse(input.Text);if(prefs.Last is Video last&&last.Url==v.Url)v=last;await Load(v);}catch(Exception e){SetStatus(e.Message,true);}}
  async Task Next(){if(prefs.Queue.Count==0){SetStatus("Fila vazia. Adicione links nas configurações.",true);return;}var next=prefs.Queue[0];prefs.Queue.RemoveAt(0);Save();RefreshLibrary();await Load(next,true);}
  internal void Touch()=>interaction=Environment.TickCount64;
  internal void CheckIdle(){if(!App.Testing&&tray!=null&&!handoffActive&&!trayRefreshActive&&!prefs.Pinned&&IsVisible&&!PanelVisible&&!animating&&!SuiteActivation.MenuOpen&&!IsMouseCaptureWithin&&Environment.TickCount64-interaction>=20000)HideWidget();}
  void SetStatus(string value,bool feedback=false){feedbackTimeout.Stop();status.Text=value;status.ToolTip=value;videoTitle.ToolTip=videoTitle.Text+"\n"+contextLabel.Text+"\n"+value;bool error=value.Contains("Não foi possível")||value.Contains("indisponível")||value.Contains("não permite")||value.Contains("Sem conexão")||value.Contains("recusou")||value.Contains("Instale o");var show=error||feedback?Visibility.Visible:Visibility.Collapsed;status.Visibility=show;videoTitle.Visibility=show==Visibility.Visible?Visibility.Collapsed:Visibility.Visible;titleFrame.Visibility=show;timeline.Visibility=show==Visibility.Visible?Visibility.Collapsed:Visibility.Visible;if(feedback)feedbackTimeout.Start();}
  internal void Save(){try{prefs.Save();}catch(Exception e){SetStatus("Não foi possível salvar as preferências.");App.Log(e);}}
- internal void Position(){if(!IsLoaded)return;double width=prefs.ExpandedPlayer?640:360;volume.Width=prefs.ExpandedPlayer?64:40;if(transport.ColumnDefinitions.Count==3)transport.ColumnDefinitions[0].Width=transport.ColumnDefinitions[2].Width=new GridLength(prefs.ExpandedPlayer?136:112);double videoHeight=Math.Max(200,(width-2)*9/16);double chrome=10+70*textScale;NativePosition.BottomRight(this,width,videoHeight+chrome);playerFrame.Height=Math.Max(200,(Width-2)*9/16);if(PanelVisible)SuitePlacement.Above(this,settingsWindow!);}
+ internal void Position(){if(!IsLoaded)return;double width=prefs.ExpandedPlayer?640:360;volume.Width=prefs.ExpandedPlayer?64:40;if(transport.ColumnDefinitions.Count==3)transport.ColumnDefinitions[0].Width=transport.ColumnDefinitions[2].Width=new GridLength(prefs.ExpandedPlayer?136:112);double videoHeight=Math.Max(200,(width-2)*9/16);double chrome=10+70*textScale;NativePosition.BottomRight(this,width,videoHeight+chrome);playerFrame.Height=Math.Max(200,(Width-2)*9/16);if(PanelVisible)PositionSettings();}
  internal void ShowWidget(){if(exiting)return;if(IsVisible&&!animating){Position();Activate();Touch();return;}animating=false;if(!App.Testing)SuiteActivation.Claim();base.Show();WindowState=WindowState.Normal;Position();ApplyAppearance();Activate();Touch();web.Suspend(false);Reveal(this,true,()=>web.SetRevealHeight(null));}
  internal void OpenFromTray(){ShowWidget();_ = RefreshOnTrayOpen();}
  void ToggleWidget(){if(IsVisible)HideWidget();else OpenFromTray();}

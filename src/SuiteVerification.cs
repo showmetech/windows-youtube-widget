@@ -23,12 +23,9 @@ internal static class SuiteVerification {
    checks["PinSeparateFromTopmost"]=w.prefs.Pinned&&!w.Topmost;
    checks["FocusDismissalPolicy"]=SuiteActivation.VerifyFocusPolicy();
    w.ShowSettings();await Task.Delay(400);
-   checks["SettingsAbove"]=SuitePlacement.IsAbove(w,w.settingsWindow);checks["SettingsHeaderAligned"]=SuiteChrome.Aligned(w.settingsWindow!,true);
+   checks["SettingsInsideScreen"]=w.SettingsInsideScreen();checks["SettingsHeaderAligned"]=SuiteChrome.Aligned(w.settingsWindow!,true);
    checks["SettingsExcludedFromTaskbar"]=NativePosition.TaskbarExcluded(w.settingsWindow!);
-   checks["SameWidth"]=Math.Abs(w.settingsWindow!.Width-w.Width)<1;
-   w.settingsScroll!.ScrollToEnd();w.settingsWindow.UpdateLayout();checks["SettingsBottomReachable"]=Math.Abs(w.settingsScroll.VerticalOffset-w.settingsScroll.ScrollableHeight)<1;
-   checks["NoHorizontalScroll"]=w.settingsScroll.ScrollableWidth<1;checks["NoVisibleScrollbar"]=w.settingsScroll.VerticalScrollBarVisibility==ScrollBarVisibility.Hidden;
-   foreach(double scale in new[]{1.5,2.0}){w.ApplyTextScale(scale);w.UpdateLayout();w.settingsWindow!.UpdateLayout();checks["TextScale"+scale]=(w.FooterLayoutValid()&&w.settingsScroll.ScrollableWidth<1);}w.ApplyTextScale(1);
+   foreach(var check in await w.VerifySettingsPages())checks[check.Key]=check.Value;
    foreach(var theme in new[]{"Light","Dark","System"}){w.prefs.Theme=theme;w.ApplyAppearance();checks["Theme"+theme]=Application.Current.Resources["Ink"] is SolidColorBrush;checks["OpaqueWidget"+theme]=w.surface.Background is SolidColorBrush opaque&&opaque.Color.A==255;checks["OpaqueSettings"+theme]=w.settingsSurface?.Background is SolidColorBrush settingsOpaque&&settingsOpaque.Color.A==255;}
    foreach(var material in new[]{0,1,2}){w.prefs.Material=material;w.ApplyAppearance();checks["Material"+material]=w.surface.Background is SolidColorBrush brush&&brush.Color.A>0;}
    w.prefs.Theme="System";w.prefs.Material=0;w.prefs.ExpandedPlayer=true;w.Position();checks["ExpandedWidth"]=w.Width>360;w.prefs.ExpandedPlayer=false;

@@ -1,3 +1,10 @@
+# 1.7.6
+
+- Configurações reorganizadas em Geral, Aparência, Reprodução e Biblioteca, com ícones e textos essenciais.
+- Janela ajustada à área útil do monitor, independente do tamanho do player e sem rolagem de página.
+- Fila e favoritos paginados para manter todos os itens acessíveis sem barras de rolagem.
+- Mantém a opacidade padrão em 100% e as preferências existentes.
+
 # 1.7.5
 
 - A opção padrão de aparência agora é Opaco · 100%, no widget e nas configurações.
