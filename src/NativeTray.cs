@@ -9,7 +9,7 @@ internal sealed class NativeTray:IDisposable {
  readonly HwndSource source;
  readonly Action toggle,context;
  readonly uint taskbarCreated;
- readonly Guid id=App.Testing?Guid.NewGuid():new("7d522462-9ed3-4e1c-bb66-52dc7e562a1e");
+ readonly Guid id=App.Testing?new Guid(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(Environment.ProcessPath??"YouTubeWidget.Test")).AsSpan(0,16)):new("7d522462-9ed3-4e1c-bb66-52dc7e562a1e");
  IntPtr icon;string iconPath;
  bool modern,disposed;
  internal string IconFile=>iconPath;
@@ -39,8 +39,10 @@ internal sealed class NativeTray:IDisposable {
   if(Shell_NotifyIcon(1,ref data)){iconPath=file;DestroyIcon(previous);}else{icon=previous;DestroyIcon(next);}
  }
  public bool TryBounds(out IconRect rect){var identity=new Identity{Size=(uint)Marshal.SizeOf<Identity>(),Window=source.Handle,Id=1,Guid=id};return Shell_NotifyIconGetRect(ref identity,out rect)==0;}
- public void Dispose(){if(disposed)return;disposed=true;var data=Create();Shell_NotifyIcon(2,ref data);source.RemoveHook(Hook);if(icon!=IntPtr.Zero){DestroyIcon(icon);icon=IntPtr.Zero;}}
- [StructLayout(LayoutKind.Sequential,CharSet=CharSet.Unicode)]struct Data{
+ public void Dispose(){if(disposed)return;disposed=true;var data=Create();Shell_NotifyIcon(2,ref data);source.RemoveHook(Hook);if(App.Testing)RemoveTestRegistration();if(icon!=IntPtr.Zero){DestroyIcon(icon);icon=IntPtr.Zero;}}
+ void RemoveTestRegistration(){
+  try{using var root=Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Control Panel\NotifyIconSettings",true);if(root==null)return;foreach(var key in root.GetSubKeyNames()){bool own;using(var item=root.OpenSubKey(key)){own=string.Equals(item?.GetValue("ExecutablePath") as string,Environment.ProcessPath,StringComparison.OrdinalIgnoreCase)&&Guid.TryParse(item?.GetValue("IconGuid") as string,out var guid)&&guid==id;}if(own)root.DeleteSubKeyTree(key,false);}}catch(Exception error){App.Log(error);}
+ } [StructLayout(LayoutKind.Sequential,CharSet=CharSet.Unicode)]struct Data{
   public uint Size;public IntPtr Window;public uint Id,Flags,Message;public IntPtr Icon;
   [MarshalAs(UnmanagedType.ByValTStr,SizeConst=128)]public string Tip;
   public uint State,StateMask;
