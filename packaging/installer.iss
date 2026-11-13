@@ -1,5 +1,5 @@
 #ifndef AppVersion
- #define AppVersion "1.7.7"
+ #define AppVersion "1.7.8"
 #endif
 #ifndef TargetArchitecture
  #define TargetArchitecture "x64"
@@ -37,6 +37,13 @@ UninstallDisplayIcon={app}\WindowsYouTubeWidget.exe
 Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"
 [Files]
 Source: "{#BuildRoot}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "*.pdb,tests.json,*verification.json,*.log,TestProfile\*,SuiteTestProfile\*,.widget-activation-state.json,bridge-*.json"
+[InstallDelete]
+Type: files; Name: "{app}\Assets\App-*.ico"
+Type: files; Name: "{app}\player-suite.log"
+Type: files; Name: "{app}\suite-verification.json"
+Type: files; Name: "{app}\tests.json"
+Type: files; Name: "{app}\native-host.diagnostic-backup.json"
+Type: files; Name: "{app}\.widget-activation-state.json"
 [Registry]
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueName: "WindowsYouTubeWidget"; ValueType: string; ValueData: """{app}\WindowsYouTubeWidget.exe"" --startup"; Flags: uninsdeletevalue
 Root: HKCU; Subkey: "Software\Google\Chrome\NativeMessagingHosts\com.bruno.youtube_widget"; Flags: uninsdeletekey

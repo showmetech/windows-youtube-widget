@@ -17,6 +17,7 @@ $sums=$release.assets | Where-Object name -eq 'SHA256SUMS.txt' | Select-Object -
 if(-not $asset -or -not $sums){throw 'Release installer or checksums are missing.'}
 $work=Join-Path ([IO.Path]::GetTempPath()) ('YouTubeWidgetRelease-'+[guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $work | Out-Null
+try {
 $installer=Join-Path $work $name
 Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $installer
 $sumPath=Join-Path $work 'SHA256SUMS.txt'
@@ -33,3 +34,8 @@ $actual=(Get-Item -LiteralPath ([IO.Path]::ChangeExtension($installed,'.dll'))).
 if($actual -notlike "$Version*"){throw 'Installed app version does not match the GitHub release.'}
 Start-Process -FilePath $installed -ArgumentList '--startup' -WindowStyle Hidden
 Write-Output "Installed GitHub release $Version; Store state: $($receipt.state)."
+
+} finally {
+ Assert-ChildPath $work ([IO.Path]::GetTempPath())
+ if(Test-Path -LiteralPath $work){Remove-Item -LiteralPath $work -Recurse -Force}
+}

@@ -1,3 +1,9 @@
+# 1.7.8
+
+- Atualizador remove a própria pasta temporária em finally, inclusive após falhas.
+- Instalador remove ícones versionados obsoletos e relatórios de diagnóstico conhecidos antes de copiar a versão nova.
+- Preserva dados do usuário, extensões, manifestos ativos e arquivos não reconhecidos.
+
 # 1.7.6
 
 - Configurações reorganizadas em Geral, Aparência, Reprodução e Biblioteca, com ícones e textos essenciais.
