@@ -1,5 +1,5 @@
 #ifndef AppVersion
- #define AppVersion "1.7.8"
+ #define AppVersion "1.7.9"
 #endif
 #ifndef TargetArchitecture
  #define TargetArchitecture "x64"
@@ -82,10 +82,23 @@ begin
   Sleep(5500);
  end;
 end;
+procedure RemoveOldVersionedIcons();
+var Item: TFindRec; Folder: String;
+begin
+ Folder := ExpandConstant('{app}\Assets\');
+ if FindFirst(Folder + 'App-*.ico', Item) then begin
+  try
+   repeat
+    if (Item.Attributes and FILE_ATTRIBUTE_DIRECTORY = 0) and (CompareText(Item.Name, 'App-{#AppVersion}.ico') <> 0) then DeleteFile(Folder + Item.Name);
+   until not FindNext(Item);
+  finally FindClose(Item); end;
+ end;
+end;
 procedure CurStepChanged(CurStep: TSetupStep);
 var Code: Integer;
 begin
  if CurStep = ssPostInstall then begin
+  RemoveOldVersionedIcons();
   if not Exec(ExpandConstant('{app}\WindowsYouTubeWidget.exe'), '--register-native-host', '', SW_HIDE, ewWaitUntilTerminated, Code) or (Code <> 0) then
    RaiseException('Não foi possível registrar a conexão local com o navegador.');
  end;
