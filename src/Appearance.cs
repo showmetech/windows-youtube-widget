@@ -20,12 +20,17 @@ public sealed partial class MainWindow {
   var r=Application.Current.Resources;
   r.MergedDictionaries[0]=new ResourceDictionary{Source=new Uri("pack://application:,,,/PresentationFramework.Fluent;component/Themes/Fluent."+(light?"Light":"Dark")+".xaml")};
   Brush B(string value)=>new SolidColorBrush((Color)ColorConverter.ConvertFromString(value));
-  r["Ink"]=contrast?SystemColors.WindowTextBrush:B(light?"#1B1B1B":"#F3F3F3");
-  r["SecondaryInk"]=contrast?SystemColors.WindowTextBrush:B(light?"#606060":"#BCBEBE");
+  r["Ink"]=contrast?SystemColors.WindowTextBrush:B(light?"#242424":"#FFFFFF");
+  r["SecondaryInk"]=contrast?SystemColors.WindowTextBrush:B(light?"#616161":"#D6D6D6");
   r["PlayerChrome"]=contrast?SystemColors.WindowBrush:B(light?"#F3F3F3":"#202020");
-  r["BorderLine"]=contrast?SystemColors.WindowTextBrush:B("#20808080");
-  r["TileBrush"]=contrast?SystemColors.ControlBrush:B(light?"#A0FFFFFF":"#18FFFFFF");
-  r["Accent"]=new SolidColorBrush(accent);r["AccentInk"]=accent.R*.2126+accent.G*.7152+accent.B*.0722>145?Brushes.Black:Brushes.White;
+  r["BorderLine"]=contrast?SystemColors.WindowTextBrush:B(light?"#D1D1D1":"#525252");
+  r["TileBrush"]=contrast?SystemColors.ControlBrush:B(light?"#FFFFFF":"#3D3D3D");
+  r["CardBrush"]=contrast?SystemColors.WindowBrush:B(light?"#FFFFFF":"#292929");
+  r["ControlHoverOverlay"]=contrast?Brushes.Transparent:B(light?"#0A000000":"#0FFFFFFF");r["ControlPressedOverlay"]=contrast?Brushes.Transparent:B(light?"#14000000":"#18FFFFFF");
+  r["NeutralTrack"]=contrast?SystemColors.WindowTextBrush:B(light?"#707070":"#ADADAD");
+  double Linear(byte value){double c=value/255.0;return c<=.04045?c/12.92:Math.Pow((c+.055)/1.055,2.4);}
+  double luminance=.2126*Linear(accent.R)+.7152*Linear(accent.G)+.0722*Linear(accent.B);
+  r["Accent"]=new SolidColorBrush(accent);r["AccentInk"]=contrast?SystemColors.HighlightTextBrush:luminance>.179?Brushes.Black:Brushes.White;
   Topmost=prefs.AlwaysOnTop;
   foreach(var pair in new[]{(window:(Window)this,border:surface),(window:settingsWindow,border:settingsSurface)}) {
    if(pair.window==null||pair.border==null)continue;
@@ -38,6 +43,7 @@ public sealed partial class MainWindow {
   tray?.UpdateIcon(Path.Combine(AppContext.BaseDirectory,"Assets","App.ico"));
   UpdateActions();
  }
+ internal static double ColorContrast(Color a,Color b){double L(Color color){double C(byte v){double c=v/255.0;return c<=.04045?c/12.92:Math.Pow((c+.055)/1.055,2.4);}return .2126*C(color.R)+.7152*C(color.G)+.0722*C(color.B);}double x=L(a),y=L(b);return (Math.Max(x,y)+.05)/(Math.Min(x,y)+.05);}
  void UpdateActions() {
   if(star!=null){bool saved=current!=null&&prefs.Favorites.Any(x=>x.Id==current.Id&&x.Playlist==current.Playlist);if(star.Content is TextBlock glyph)glyph.Text=saved?"\uE735":"\uE734";star.ToolTip=saved?"Remover dos favoritos":"Salvar nos favoritos";AutomationProperties.SetName(star,(string)star.ToolTip);}
   if(expand!=null){if(expand.Content is TextBlock glyph)glyph.Text=prefs.ExpandedPlayer?"\uE73F":"\uE740";expand.ToolTip=prefs.ExpandedPlayer?"Reduzir vídeo":"Ampliar vídeo";AutomationProperties.SetName(expand,(string)expand.ToolTip);}

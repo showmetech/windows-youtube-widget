@@ -1,3 +1,9 @@
+# 1.8.0
+
+- Aplica a linguagem Fluent 2 ao tema WPF: superfícies, tipografia, cartões, controles e estados de interação.
+- Melhora foco de teclado e contraste do texto sobre a cor de destaque.
+- Preserva player compacto, temas claro/escuro/sistema, opacidade padrão de 100% e configurações sem rolagem.
+
 # 1.7.8
 
 - Atualizador remove a própria pasta temporária em finally, inclusive após falhas.

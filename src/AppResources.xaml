@@ -1,13 +1,37 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"><ResourceDictionary.MergedDictionaries><ResourceDictionary Source="pack://application:,,,/PresentationFramework.Fluent;component/Themes/Fluent.xaml"/></ResourceDictionary.MergedDictionaries>
   <SolidColorBrush x:Key="Accent" Color="#CEC681"/>
   <SolidColorBrush x:Key="Ink" Color="#F3F3F3"/><SolidColorBrush x:Key="SecondaryInk" Color="#BCBEBE"/><SolidColorBrush x:Key="BorderLine" Color="#20808080"/><SolidColorBrush x:Key="SurfaceBrush" Color="#12FFFFFF"/><SolidColorBrush x:Key="TileBrush" Color="#18FFFFFF"/><SolidColorBrush x:Key="AccentInk" Color="#202020"/>
+  <!-- Fluent 2 semantic interaction tokens. Colors are refreshed for theme/high contrast. -->
+  <SolidColorBrush x:Key="CardBrush" Color="#2D2D2D"/>
+  <SolidColorBrush x:Key="ControlHoverOverlay" Color="#0FFFFFFF"/>
+  <SolidColorBrush x:Key="ControlPressedOverlay" Color="#18FFFFFF"/>
+  <SolidColorBrush x:Key="NeutralTrack" Color="#9B9B9B"/>
+  <ControlTemplate x:Key="FluentButtonTemplate" TargetType="Button"><Grid>
+    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4"/>
+    <Border x:Name="Interaction" Background="Transparent" CornerRadius="4"/>
+    <Border x:Name="FocusRing" BorderBrush="{DynamicResource Ink}" BorderThickness="2" CornerRadius="4" Opacity="0" Margin="1"/>
+    <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+   </Grid><ControlTemplate.Triggers>
+    <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Interaction" Property="Background" Value="{DynamicResource ControlHoverOverlay}"/></Trigger>
+    <Trigger Property="IsPressed" Value="True"><Setter TargetName="Interaction" Property="Background" Value="{DynamicResource ControlPressedOverlay}"/></Trigger>
+    <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="FocusRing" Property="Opacity" Value="1"/></Trigger>
+    <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.4"/></Trigger>
+   </ControlTemplate.Triggers></ControlTemplate>
   <Style TargetType="Button">
-   <Setter Property="Foreground" Value="{DynamicResource Ink}"/><Setter Property="Background" Value="Transparent"/>
-   <Setter Property="BorderThickness" Value="0"/><Setter Property="MinHeight" Value="32"/>
-   <Setter Property="FocusVisualStyle"><Setter.Value><Style><Setter Property="Control.Template"><Setter.Value><ControlTemplate><Border BorderBrush="{DynamicResource Accent}" BorderThickness="2" CornerRadius="8" Margin="2"/></ControlTemplate></Setter.Value></Setter></Style></Setter.Value></Setter>
-   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button"><Border x:Name="B" Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="B" Property="Opacity" Value="0.9"/></Trigger><Trigger Property="IsPressed" Value="True"><Setter TargetName="B" Property="Opacity" Value="0.72"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter TargetName="B" Property="Opacity" Value="0.35"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
+   <Setter Property="Foreground" Value="{DynamicResource Ink}"/><Setter Property="Background" Value="{DynamicResource TileBrush}"/>
+   <Setter Property="BorderBrush" Value="{DynamicResource BorderLine}"/><Setter Property="BorderThickness" Value="1"/>
+   <Setter Property="MinHeight" Value="32"/><Setter Property="Padding" Value="12,6"/>
+   <Setter Property="Template" Value="{DynamicResource FluentButtonTemplate}"/>
   </Style>
-  <Style TargetType="TextBox"><Setter Property="Foreground" Value="{DynamicResource Ink}"/><Setter Property="Background" Value="{DynamicResource TileBrush}"/><Setter Property="CaretBrush" Value="{DynamicResource Ink}"/><Setter Property="SelectionBrush" Value="{DynamicResource Accent}"/></Style>
+  <Style TargetType="TextBox">
+   <Setter Property="Foreground" Value="{DynamicResource Ink}"/><Setter Property="Background" Value="{DynamicResource TileBrush}"/>
+   <Setter Property="CaretBrush" Value="{DynamicResource Ink}"/><Setter Property="SelectionBrush" Value="{DynamicResource Accent}"/>
+   <Setter Property="BorderBrush" Value="{DynamicResource BorderLine}"/><Setter Property="BorderThickness" Value="1"/><Setter Property="Padding" Value="8,6"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="TextBox"><Border x:Name="InputBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4"><ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"/></Border><ControlTemplate.Triggers>
+    <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="InputBorder" Property="BorderBrush" Value="{DynamicResource Accent}"/><Setter TargetName="InputBorder" Property="BorderThickness" Value="1,1,1,2"/></Trigger>
+    <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.4"/></Trigger>
+   </ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
+  </Style>
   <Style TargetType="ComboBox"><Setter Property="Foreground" Value="{DynamicResource Ink}"/><Setter Property="Background" Value="{DynamicResource TileBrush}"/></Style>
   <Style TargetType="ComboBoxItem"><Setter Property="Foreground" Value="{DynamicResource Ink}"/><Setter Property="Background" Value="{DynamicResource TileBrush}"/></Style>
   <Style TargetType="Expander"><Setter Property="Foreground" Value="{DynamicResource Ink}"/></Style>
@@ -18,7 +42,7 @@
     <Grid Margin="0,0,0,0"><Track x:Name="PART_Track" Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}" Value="{TemplateBinding Value}" Orientation="Horizontal" IsDirectionReversed="False">
      <Track.DecreaseRepeatButton><RepeatButton Style="{x:Null}" OverridesDefaultStyle="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Command="Slider.DecreaseLarge" Focusable="False"><RepeatButton.Template><ControlTemplate><Border Height="4" VerticalAlignment="Center" Background="{DynamicResource Accent}" CornerRadius="2" Margin="0,0,-5,0"/></ControlTemplate></RepeatButton.Template></RepeatButton></Track.DecreaseRepeatButton>
      <Track.Thumb><Thumb Style="{x:Null}" OverridesDefaultStyle="True" Width="20" Height="20"><Thumb.Template><ControlTemplate TargetType="Thumb"><Grid><Ellipse Fill="{DynamicResource TileBrush}"/><Ellipse x:Name="Dot" Fill="{DynamicResource Accent}" Width="10" Height="10"/></Grid><ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Dot" Property="Width" Value="12"/><Setter TargetName="Dot" Property="Height" Value="12"/></Trigger><Trigger Property="IsDragging" Value="True"><Setter TargetName="Dot" Property="Width" Value="8"/><Setter TargetName="Dot" Property="Height" Value="8"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Thumb.Template></Thumb></Track.Thumb>
-     <Track.IncreaseRepeatButton><RepeatButton Style="{x:Null}" OverridesDefaultStyle="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Command="Slider.IncreaseLarge" Focusable="False"><RepeatButton.Template><ControlTemplate><Border Height="4" VerticalAlignment="Center" Background="#999B9B" CornerRadius="2" Margin="-5,0,0,0"/></ControlTemplate></RepeatButton.Template></RepeatButton></Track.IncreaseRepeatButton>
+     <Track.IncreaseRepeatButton><RepeatButton Style="{x:Null}" OverridesDefaultStyle="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Command="Slider.IncreaseLarge" Focusable="False"><RepeatButton.Template><ControlTemplate><Border Height="4" VerticalAlignment="Center" Background="{DynamicResource NeutralTrack}" CornerRadius="2" Margin="-5,0,0,0"/></ControlTemplate></RepeatButton.Template></RepeatButton></Track.IncreaseRepeatButton>
     </Track></Grid><ControlTemplate.Triggers><Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.3"/></Trigger></ControlTemplate.Triggers>
    </ControlTemplate></Setter.Value></Setter>
   </Style>
