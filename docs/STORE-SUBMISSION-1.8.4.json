@@ -1,0 +1,23 @@
+{
+  "version": "1.8.4",
+  "sourceCommit": "374ac0c9c4fe4c0a12e6df91e914f99b6534d046",
+  "productId": "9N7BTV6J630T",
+  "submissionId": "1152921505702432980",
+  "submittedOn": "2026-11-17",
+  "state": "submitted",
+  "certification": "pending",
+  "observedStatus": "In certification",
+  "observedPhase": "Pre-processing",
+  "architectures": [
+    "x64",
+    "x86",
+    "arm64"
+  ],
+  "publishesAfterApproval": true,
+  "firstPublicationComplete": false,
+  "restrictedCapabilitiesApproval": "pending",
+  "submissionRoute": "Partner Center initial manual submission",
+  "automationGate": "Initial publication and restricted capability approval must finish before Store automation is enabled.",
+  "workflowRunId": 44190789559,
+  "workflowStoreGate": "blocked-onboarding"
+}
