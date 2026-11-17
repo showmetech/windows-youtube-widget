@@ -1,3 +1,8 @@
+# 1.8.3
+
+- Consolida a distribuição para Microsoft Store em um bundle de x86, x64 e ARM64, com identidade oficial e versão única para o conteúdo final.
+- Inclui o isolamento por usuário e sessão, a proteção contra dados privados nos pacotes e a preservação da escolha de startup da versão 1.8.2.
+
 # 1.8.2
 
 - Associa os pacotes MSIX à identidade oficial Showmetech.YouTubeWidget, reservada no Microsoft Partner Center.
@@ -66,6 +71,7 @@ Microsoft Store publication is blocked while the existing Showmetech company acc
 Chrome recommendations/handoff require the companion extension and the user's own signed-in YouTube session. Private videos, age/region restrictions, videos that disallow embedding and Windows S mode are not supported by this embedded player.
 
 The GitHub EXE installer is not Authenticode-signed. Store MSIX packages require the exact existing Partner Center product identity and Microsoft certification.
+
 
 
 

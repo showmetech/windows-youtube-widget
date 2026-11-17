@@ -1,5 +1,5 @@
 #ifndef AppVersion
- #define AppVersion "1.8.2"
+ #define AppVersion "1.8.3"
 #endif
 #ifndef TargetArchitecture
  #define TargetArchitecture "x64"
@@ -116,4 +116,5 @@ begin
  RestoreManifest(ExpandConstant('{app}\native-host.json'));
  RestoreManifest(ExpandConstant('{localappdata}\WindowsYouTubeWidget\NativeMessaging\native-host.json'));
 end;
+
 
