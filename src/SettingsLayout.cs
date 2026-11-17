@@ -51,7 +51,10 @@ public sealed partial class MainWindow {
   foreach(int page in Enumerable.Range(0,4)){
    settingsTabs!.SelectedIndex=page;settingsWindow!.UpdateLayout();await Task.Delay(100);
    var visual=new DrawingVisual();using(var dc=visual.RenderOpen())dc.DrawRectangle(new VisualBrush(settingsSurface!),null,new Rect(0,0,settingsSurface!.ActualWidth,settingsSurface.ActualHeight));
-   var image=new RenderTargetBitmap((int)Math.Ceiling(settingsSurface!.ActualWidth),(int)Math.Ceiling(settingsSurface.ActualHeight),96,96,PixelFormats.Pbgra32);image.Render(visual);var encoder=new PngBitmapEncoder();encoder.Frames.Add(BitmapFrame.Create(image));using var file=File.Create(Path.Combine(Preferences.Folder,$"settings-page-{page}.png"));encoder.Save(file);
+   // Export the actual WPF surface at high DPI for Store screenshots, without
+   // stretching an existing bitmap or capturing the user's desktop/profile.
+   double captureScale=Environment.GetCommandLineArgs().Contains("--store-captures")?2:1;
+   var image=new RenderTargetBitmap((int)Math.Ceiling(settingsSurface!.ActualWidth*captureScale),(int)Math.Ceiling(settingsSurface.ActualHeight*captureScale),96*captureScale,96*captureScale,PixelFormats.Pbgra32);image.Render(visual);var encoder=new PngBitmapEncoder();encoder.Frames.Add(BitmapFrame.Create(image));using var file=File.Create(Path.Combine(Preferences.Folder,$"settings-page-{page}.png"));encoder.Save(file);
   }
   File.WriteAllText(Path.Combine(Preferences.Folder,"settings-layout.json"),JsonSerializer.Serialize(new{Checks=checks,Passed=checks.Values.All(x=>x)},new JsonSerializerOptions{WriteIndented=true}));ExitApp();
  }
