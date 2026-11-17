@@ -13,5 +13,13 @@ foreach($file in $files){
    throw "Potential credential or developer profile path refused: $relative"
   }
  }
+ if($file.Name -in @('WindowsYouTubeWidget.dll','WindowsYouTubeWidget.exe','YouTubeWidget.Startup.dll','YouTubeWidget.Startup.exe')){
+  $bytes=[IO.File]::ReadAllBytes($file.FullName)
+  foreach($encoding in @([Text.Encoding]::UTF8,[Text.Encoding]::Unicode)){
+   if($encoding.GetString($bytes) -match '[A-Za-z]:[\\/]+Users[\\/]+[^\\/:\r\n\x00]+[\\/]'){
+    throw "Developer profile path in application binary refused: $relative"
+   }
+  }
+ }
 }
 Write-Output "Public distribution audit passed: $($files.Count) files; no private/test artifacts found."

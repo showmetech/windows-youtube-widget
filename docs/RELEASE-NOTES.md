@@ -1,3 +1,8 @@
+# 1.8.4
+
+- Remove metadados de depuração dos binários de produção e bloqueia pacotes que contenham caminhos de perfil nos executáveis e DLLs do aplicativo.
+- Mantém o bundle de x86, x64 e ARM64, isolamento por usuário e sessão, startup preservado e proteção contra dados locais na distribuição.
+
 # 1.8.3
 
 - Consolida a distribuição para Microsoft Store em um bundle de x86, x64 e ARM64, com identidade oficial e versão única para o conteúdo final.
@@ -71,6 +76,7 @@ Microsoft Store publication is blocked while the existing Showmetech company acc
 Chrome recommendations/handoff require the companion extension and the user's own signed-in YouTube session. Private videos, age/region restrictions, videos that disallow embedding and Windows S mode are not supported by this embedded player.
 
 The GitHub EXE installer is not Authenticode-signed. Store MSIX packages require the exact existing Partner Center product identity and Microsoft certification.
+
 
 
 

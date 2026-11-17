@@ -16,7 +16,15 @@ try {
  $credentialFile=Join-Path $fixture 'example.txt';Set-Content -LiteralPath $credentialFile -Value ('ghp_'+('x'*40))
  $rejected=$false;try{& "$PSScriptRoot\Assert-PublicDistribution.ps1" -Directory $fixture | Out-Null}catch{$rejected=$true}
  if(-not $rejected){throw 'Distribution privacy guard missed a credential marker.'}
- Write-Output 'PASS: clean distribution accepted; 10 private/test artifact types and a synthetic credential rejected.'
+ Remove-Item -LiteralPath $credentialFile -Force
+ foreach($encoding in @([Text.Encoding]::UTF8,[Text.Encoding]::Unicode)){
+  $binary=Join-Path $fixture 'WindowsYouTubeWidget.dll'
+  [IO.File]::WriteAllBytes($binary,$encoding.GetBytes('C:\Users\ExampleDeveloper\project\app.pdb'))
+  $rejected=$false;try{& "$PSScriptRoot\Assert-PublicDistribution.ps1" -Directory $fixture | Out-Null}catch{$rejected=$true}
+  Remove-Item -LiteralPath $binary -Force
+  if(-not $rejected){throw 'Distribution privacy guard missed a binary developer path.'}
+ }
+ Write-Output 'PASS: clean distribution accepted; 10 private/test artifact types, a synthetic credential and UTF-8/UTF-16 developer paths rejected.'
 } finally {
  Assert-ChildPath $fixture (Join-Path (Get-RepositoryRoot) 'build')
  Remove-Item -LiteralPath $fixture -Recurse -Force
