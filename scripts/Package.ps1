@@ -5,6 +5,7 @@ if(-not $InnoCompiler){$InnoCompiler=Join-Path ${env:ProgramFiles(x86)} 'Inno Se
 if(-not(Test-Path -LiteralPath $InnoCompiler)){throw 'Install Inno Setup 6 or pass -InnoCompiler.'}
 $version=Get-ReleaseVersion
 $build=Join-Path $root "build\win-$Architecture"
+& "$PSScriptRoot\Assert-PublicDistribution.ps1" -Directory $build
 if(-not (Test-Path -LiteralPath (Join-Path $build 'WebView2Runtime\msedgewebview2.exe'))){throw 'Public distributions require the bundled, verified WebView2 runtime.'}
 & $InnoCompiler "/DAppVersion=$version" "/DTargetArchitecture=$Architecture" "/DBuildRoot=$build" (Join-Path $root 'packaging\installer.iss')
 if($LASTEXITCODE -ne 0){throw 'Installer build failed.'}

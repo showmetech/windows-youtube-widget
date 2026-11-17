@@ -7,7 +7,10 @@ using System.Threading;
 using System.Threading.Tasks;
 namespace YouTubeWidget;
 internal sealed class RecommendationBroker:IDisposable {
- const string Name="Bruno.WindowsYouTubeWidget.Recommendations.v1";
+ // Windows named pipes span sessions. Scope the endpoint to both the user and
+ // session so another signed-in user cannot occupy this user's broker name.
+ internal static string ScopedName(string sid,int session)=>"WindowsYouTubeWidget.Recommendations.v1."+sid+"."+session;
+ static readonly string Name=ScopedName(System.Security.Principal.WindowsIdentity.GetCurrent().User!.Value,System.Diagnostics.Process.GetCurrentProcess().SessionId);
  readonly CancellationTokenSource stop=new();
  public RecommendationBroker(){_ = Task.Run(Listen);}
  async Task Listen(){

@@ -1,6 +1,8 @@
 # Existing Microsoft Store publisher
 
-Use the existing publisher **Showmetech**, company **SHOWMETECH LTDA**, bruno@showmetech.com.br. On 2026-11-07 email/employment were verified, but business documents were in review. Preserve this account; do not register another company to bypass review.
+Use the existing publisher **Showmetech**, company **SHOWMETECH LTDA**. On 2026-11-17 Partner Center access and product reservation were verified. Preserve this account; do not register another company.
+
+Reserved product: **9N7BTV6J630T**. Package name: **Showmetech.YouTubeWidget**. Publisher: **CN=FD7524DA-7205-4A8D-BD87-CB2B06495E9A**. Initial certification and restricted capability approval remain pending.
 
 After Microsoft releases the account:
 
@@ -20,3 +22,4 @@ References:
 - https://learn.microsoft.com/windows/apps/publish/publish-your-app/msix/app-package-requirements
 - https://learn.microsoft.com/windows/msix/desktop/flexible-virtualization
 - https://learn.microsoft.com/uwp/api/windows.applicationmodel.startuptask
+

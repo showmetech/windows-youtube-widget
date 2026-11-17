@@ -4,6 +4,7 @@ $root=Get-RepositoryRoot
 Push-Location $root
 try {
  New-Item -ItemType Directory -Path artifacts -Force | Out-Null
+ & "$PSScriptRoot\Test-PublicDistribution.ps1"
  Get-ChildItem -LiteralPath tests -Filter '*.cjs' | ForEach-Object { & node $_.FullName; if ($LASTEXITCODE -ne 0) { throw "Test failed: $($_.Name)" } }
  if ($Architecture -eq 'arm64' -and $env:PROCESSOR_ARCHITECTURE -ne 'ARM64') { Write-Output 'ARM64 compiled; execution requires ARM64 hardware.'; return }
  $exe=Join-Path $root "build\win-$Architecture\WindowsYouTubeWidget.exe"

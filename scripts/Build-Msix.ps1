@@ -1,6 +1,7 @@
 param([ValidateSet('x64','x86','arm64')][string]$Architecture='x64',[switch]$Development)
 . "$PSScriptRoot\Common.ps1"
 $root=Get-RepositoryRoot
+& "$PSScriptRoot\Assert-PublicDistribution.ps1" -Directory (Join-Path $root "build\win-$Architecture")
 $config=Get-Content -LiteralPath (Join-Path $root 'packaging\store-config.json') -Raw | ConvertFrom-Json
 if (-not $Development -and (-not $config.identityName -or -not $config.publisher)) { throw 'The existing Partner Center product identity must be configured before creating a Store submission package.' }
 $identity=if($Development){'Showmetech.YouTubeWidget.Development'}else{$config.identityName}
