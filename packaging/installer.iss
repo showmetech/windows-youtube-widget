@@ -45,7 +45,7 @@ Type: files; Name: "{app}\tests.json"
 Type: files; Name: "{app}\native-host.diagnostic-backup.json"
 Type: files; Name: "{app}\.widget-activation-state.json"
 [Registry]
-Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueName: "WindowsYouTubeWidget"; ValueType: string; ValueData: """{app}\WindowsYouTubeWidget.exe"" --startup"; Flags: uninsdeletevalue
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueName: "WindowsYouTubeWidget"; ValueType: string; ValueData: """{app}\WindowsYouTubeWidget.exe"" --startup"; Flags: uninsdeletevalue; Check: RegisterStartup
 Root: HKCU; Subkey: "Software\Google\Chrome\NativeMessagingHosts\com.bruno.youtube_widget"; Flags: uninsdeletekey
 Root: HKCU; Subkey: "Software\Microsoft\Edge\NativeMessagingHosts\com.bruno.youtube_widget"; Flags: uninsdeletekey
 [Icons]
@@ -57,6 +57,11 @@ Filename: "{app}\WindowsYouTubeWidget.exe"; Description: "Abrir YouTube Widget";
 Type: files; Name: "{app}\native-host.json"
 Type: files; Name: "{localappdata}\WindowsYouTubeWidget\NativeMessaging\native-host.json"
 [Code]
+var EnableStartupRegistration: Boolean;
+function RegisterStartup(): Boolean;
+begin
+ Result := EnableStartupRegistration;
+end;
 procedure DisableManifest(Path: String);
 begin
  if FileExists(Path) then begin
@@ -75,6 +80,9 @@ function PrepareToInstall(var NeedsRestart: Boolean): String;
 var Code: Integer;
 begin
  Result := '';
+ // Default on for a new installation; retain the user's disabled choice on updates.
+ EnableStartupRegistration := not FileExists(ExpandConstant('{app}\WindowsYouTubeWidget.exe')) or
+   RegValueExists(HKCU, 'Software\Microsoft\Windows\CurrentVersion\Run', 'WindowsYouTubeWidget');
  DisableManifest(ExpandConstant('{app}\native-host.json'));
  DisableManifest(ExpandConstant('{localappdata}\WindowsYouTubeWidget\NativeMessaging\native-host.json'));
  if FileExists(ExpandConstant('{app}\WindowsYouTubeWidget.exe')) then begin

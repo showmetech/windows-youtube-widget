@@ -5,7 +5,7 @@ $files=@(Get-ChildItem -LiteralPath $root -File -Recurse -Force)
 foreach($file in $files){
  $relative=[IO.Path]::GetRelativePath($root,$file.FullName)
  if($relative -match '(^|[\\/])(Browser|TestProfile|SuiteTestProfile|User Data|\.git)([\\/]|$)' -or
-    $file.Name -match '^(\.env($|\.)|settings\.json$|recommendation(-refresh)?\.json$|runtime-health\.json$|broker-last\.json$|handoff.*\.json$|bridge-.*\.json$|native-host\.json$|tests\.json$|.*verification\.json$|Cookies$|Login Data$|History$|Web Data$|Preferences$|Local State$)' -or
+    $file.Name -match '^(\.env($|\.)|(settings|recommendation(-refresh)?|runtime-health|broker-last|handoff.*|bridge-.*|native-host|tests|.*verification)\.json($|\.)|Cookies$|Login Data$|History$|Web Data$|Preferences$|Local State$)' -or
     $file.Extension -in @('.pfx','.p12','.pdb','.log')){throw "Private or test artifact refused: $relative"}
  if($file.Extension -in @('.json','.js','.html','.txt','.md','.xml','.config')){
   $text=[IO.File]::ReadAllText($file.FullName)

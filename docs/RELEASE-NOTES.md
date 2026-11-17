@@ -3,6 +3,7 @@
 - Associa os pacotes MSIX à identidade oficial Showmetech.YouTubeWidget, reservada no Microsoft Partner Center.
 - Isola a conexão local de recomendações por usuário e sessão do Windows, evitando conflitos em computadores compartilhados.
 - Bloqueia pacotes que contenham perfis de navegador, preferências locais, logs, arquivos de teste ou marcadores de credenciais.
+- Mantém a escolha de inicialização automática do usuário durante atualizações; novas instalações começam com startup ativado.
 - A publicação inicial na Microsoft Store permanece sujeita à submissão e certificação; preserva as funções da versão 1.8.1.
 
 # 1.8.1
@@ -65,6 +66,7 @@ Microsoft Store publication is blocked while the existing Showmetech company acc
 Chrome recommendations/handoff require the companion extension and the user's own signed-in YouTube session. Private videos, age/region restrictions, videos that disallow embedding and Windows S mode are not supported by this embedded player.
 
 The GitHub EXE installer is not Authenticode-signed. Store MSIX packages require the exact existing Partner Center product identity and Microsoft certification.
+
 
 
 
