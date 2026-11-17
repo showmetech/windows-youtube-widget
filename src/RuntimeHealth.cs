@@ -9,7 +9,7 @@ public sealed partial class MainWindow {
  long lastHealth;bool recoveringPlayer;readonly Queue<DateTimeOffset> playerFailures=new();
  void WriteHealth(){
   if(Environment.TickCount64-lastHealth<5000)return;lastHealth=Environment.TickCount64;
-  try{HandoffTransport.Write(Path.Combine(Preferences.Folder,"runtime-health.json"),new{At=DateTimeOffset.UtcNow,Pid=Environment.ProcessId,Version=typeof(App).Assembly.GetName().Version?.ToString(3),Responsive=true,Visible=IsVisible,TrayRegistered=tray?.TryBounds(out _)==true,PlayerReady=playerReady,Playing=playing,PlayEnabled=playButton.IsEnabled,PlaybackPending,Recovering=recoveringPlayer,TaskbarExcluded=NativePosition.TaskbarExcluded(this)});}catch(Exception error){App.Log(error);}
+  try{HandoffTransport.Write(Path.Combine(Preferences.Folder,"runtime-health.json"),new{At=DateTimeOffset.UtcNow,Pid=Environment.ProcessId,Version=typeof(App).Assembly.GetName().Version?.ToString(3),Responsive=true,OutsideClickListener=SuiteActivation.MouseListenerActive,Visible=IsVisible,TrayRegistered=tray?.TryBounds(out _)==true,PlayerReady=playerReady,Playing=playing,PlayEnabled=playButton.IsEnabled,PlaybackPending,Recovering=recoveringPlayer,TaskbarExcluded=NativePosition.TaskbarExcluded(this)});}catch(Exception error){App.Log(error);}
  }
  async Task RecoverPlayer(CoreWebView2ProcessFailedKind failure){
   if(exiting||recoveringPlayer)return;

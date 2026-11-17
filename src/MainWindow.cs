@@ -65,7 +65,7 @@ public sealed partial class MainWindow:Window {
   input.ToolTip="Link de vídeo, Shorts, live ou playlist";AutomationProperties.SetName(input,"Link do YouTube");input.KeyDown+=async(_,e)=>{if(e.Key==Key.Enter)await OpenInput();};
   PreviewMouseMove+=(_,_)=>Touch();PreviewMouseDown+=(_,_)=>Touch();PreviewMouseWheel+=(_,_)=>Touch();
   PreviewKeyDown+=(_,e)=>{if(e.Key==Key.Q&&(Keyboard.Modifiers&ModifierKeys.Control)!=0){ExitApp();e.Handled=true;return;}Touch();if(e.Key==Key.Escape){if(PanelVisible)CloseSettings();else HideWidget();e.Handled=true;}else if(e.Key==Key.OemComma&&(Keyboard.Modifiers&ModifierKeys.Control)!=0){ToggleSettings();e.Handled=true;}else if(e.Key==Key.L&&(Keyboard.Modifiers&ModifierKeys.Control)!=0){ShowSettings();input.Focus();input.SelectAll();e.Handled=true;}};
-  if(!App.Testing)SuiteActivation.Attach(this,HideWidget,()=>prefs.Pinned||trayRefreshActive||handoffActive||PlaybackPending);
+  if(!App.Testing)SuiteActivation.Attach(this,HideWidget,()=>prefs.Pinned||trayRefreshActive||handoffActive||PlaybackPending,()=>prefs.Pinned);
   Loaded+=OnLoaded;DpiChanged+=(_,_)=>Position();SystemEvents.DisplaySettingsChanged+=DisplayChanged;SystemEvents.UserPreferenceChanged+=ThemeChanged;
   Closing+=(_,e)=>{if(!exiting){e.Cancel=true;HideWidget();}};
   Closed+=(_,_)=>{DisposeAccessibility();tick.Stop();feedbackTimeout.Stop();reveal?.Dispose();panelReveal?.Dispose();tray?.Dispose();web.Dispose();SystemEvents.UserPreferenceChanged-=ThemeChanged;SystemEvents.DisplaySettingsChanged-=DisplayChanged;};

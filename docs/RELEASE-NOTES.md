@@ -1,3 +1,8 @@
+# 1.8.1
+
+- Recolhe o widget em clique fora quando o pin estiver desmarcado, incluindo cliques na área de trabalho que não alteram o foco.
+- Cliques dentro do vídeo, nas configurações e no menu continuam disponíveis; operações de carregamento não impedem o recolhimento por clique externo.
+
 # 1.8.0
 
 - Aplica a linguagem Fluent 2 ao tema WPF: superfícies, tipografia, cartões, controles e estados de interação.

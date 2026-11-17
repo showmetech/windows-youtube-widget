@@ -21,7 +21,7 @@ internal static class SuiteVerification {
    checks["OpaqueContent"]=w.Opacity==1;checks["RoundedSurface"]=w.surface.CornerRadius.TopLeft==8;
    checks["PlayerViewport"]=w.web.Mode is "Composition" or "OwnedOpaqueViewport";
    checks["PinSeparateFromTopmost"]=w.prefs.Pinned&&!w.Topmost;
-   checks["FocusDismissalPolicy"]=SuiteActivation.VerifyFocusPolicy();
+   checks["FocusDismissalPolicy"]=SuiteActivation.VerifyFocusPolicy();checks["OutsideClickDismissalPolicy"]=SuiteActivation.VerifyClickPolicy();
    w.ShowSettings();await Task.Delay(400);
    checks["SettingsInsideScreen"]=w.SettingsInsideScreen();checks["SettingsHeaderAligned"]=SuiteChrome.Aligned(w.settingsWindow!,true);
    checks["SettingsExcludedFromTaskbar"]=NativePosition.TaskbarExcluded(w.settingsWindow!);
