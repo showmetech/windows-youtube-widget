@@ -7,7 +7,7 @@
   "state": "submitted",
   "certification": "pending",
   "observedStatus": "In certification",
-  "observedPhase": "Pre-processing",
+  "observedPhase": "Certification",
   "architectures": [
     "x64",
     "x86",
@@ -19,5 +19,21 @@
   "submissionRoute": "Partner Center initial manual submission",
   "automationGate": "Initial publication and restricted capability approval must finish before Store automation is enabled.",
   "workflowRunId": 44190789559,
-  "workflowStoreGate": "blocked-onboarding"
+  "workflowStoreGate": "blocked-onboarding",
+  "displayName": "SMT YouTube Widget",
+  "resubmittedOn": "2026-11-23",
+  "observedOn": "2026-11-23",
+  "previousReview": {
+    "completedOn": "2026-11-20",
+    "result": "failed",
+    "policies": [
+      "10.1.1.1",
+      "10.6.3"
+    ],
+    "restrictedCapabilityReview": "deferred pending other policy remediation"
+  },
+  "resubmissionChanges": [
+    "Product name set to SMT YouTube Widget in English and Portuguese Store listings",
+    "Certification notes clarify the independent publisher and request review of revised naming and existing restricted capability justifications"
+  ]
 }
