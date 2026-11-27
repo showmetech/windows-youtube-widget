@@ -1,3 +1,8 @@
+# 1.9.1
+
+- Preserva o viewport mínimo de 200 × 200 px exigido pelo YouTube em telas estreitas; o player oficial mantém a proporção do vídeo com barras quando necessário.
+- Adiciona regressão para o tamanho mínimo, além das verificações de encaixe e sobreposição.
+
 # 1.9.0
 
 - Adapta o tamanho do player ao espaço útil mantendo 16:9; reorganiza controles quando a largura é insuficiente.

@@ -3,7 +3,7 @@
 Use the Windows guidance at https://fluent2.microsoft.design/ as the design reference for this WPF application. Keep native platform behavior and semantic resources; do not import mobile-only patterns indiscriminately.
 
 - Prioritize the video, with transport centered and secondary actions grouped in the footer.
-- Fit the available monitor work area, preserve the video aspect ratio and reflow controls instead of overlapping them.
+- Fit the available monitor work area, preserve the video aspect ratio and the YouTube minimum 200 × 200 px viewport (letterbox where necessary) and reflow controls instead of overlapping them.
 - Keep four clear settings destinations. In narrow settings windows, retain named accessible navigation with compact icons.
 - Segoe UI Variable; body 14, captions 12 and page headings 20; support 100–200% text scaling.
 - Use semantic theme resources and contrast checks. Retain 100% opacity by default and Windows high contrast behavior.

@@ -12,7 +12,10 @@ internal readonly record struct PlayerLayout(double Width,double VideoHeight,dou
   bool stacked=width<350;
   if(stacked)chrome+=40;
   width=Math.Min(width,Math.Max(1,(maxHeight-chrome)*16/9+2));
-  double video=Math.Max(1,Math.Min((width-2)*9/16,maxHeight-chrome));
+  // The YouTube embed requires at least 200 CSS pixels in each dimension.
+  // Below a 16:9 frame of that height, let the official player letterbox the video.
+  width=Math.Max(202,width);
+  double video=Math.Max(200,Math.Min((width-2)*9/16,maxHeight-chrome));
   return new(width,video,Math.Min(chrome,maxHeight),stacked);
  }
 }
