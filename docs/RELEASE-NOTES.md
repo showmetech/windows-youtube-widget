@@ -1,3 +1,10 @@
+# 1.9.2
+
+- Usa seletores de tema e opacidade em configurações estreitas ou com texto ampliado, mantendo rótulos legíveis e foco visível.
+- Aplica switches às preferências de efeito imediato, incluindo o popup da extensão 1.7.1, sem novas permissões.
+- Amplia a regressão das quatro páginas para 320 px e valida os seletores compactos.
+- Evita reter árvores de configurações já fechadas no cache de escala de texto.
+
 # 1.9.1
 
 - Preserva o viewport mínimo de 200 × 200 px exigido pelo YouTube em telas estreitas; o player oficial mantém a proporção do vídeo com barras quando necessário.

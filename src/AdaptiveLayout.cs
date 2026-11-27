@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
@@ -30,9 +32,20 @@ public sealed partial class MainWindow {
   volume.Width=plan.Width>=500?64:40;
   transport.ColumnDefinitions[0].Width=transport.ColumnDefinitions[2].Width=new GridLength(stacked?1:plan.Width>=500?136:112,stacked?GridUnitType.Star:GridUnitType.Pixel);
  }
+ static IEnumerable<DependencyObject> SettingsLogicalObjects(DependencyObject root){yield return root;foreach(var child in LogicalTreeHelper.GetChildren(root))if(child is DependencyObject item)foreach(var descendant in SettingsLogicalObjects(item))yield return descendant;}
  internal void AdaptSettingsNavigation(double availableWidth) {
   if(settingsTabs==null)return;
-  bool narrow=availableWidth<680;settingsTabs.TabStripPlacement=narrow?Dock.Top:Dock.Left;
+  bool narrow=availableWidth<680||availableWidth/textScale<500;
+  if(narrow&&settingsWindow!=null){var area=System.Windows.Forms.Screen.FromHandle(new WindowInteropHelper(this).Handle).WorkingArea;var dpi=VisualTreeHelper.GetDpi(this);settingsWindow.Height=Math.Min(540+260*(textScale-1),area.Height/dpi.DpiScaleY-24);settingsWindow.Top=Math.Clamp(settingsWindow.Top,area.Top/dpi.DpiScaleY+12,area.Bottom/dpi.DpiScaleY-settingsWindow.Height-12);}
+  if(themeOptions!=null)themeOptions.Visibility=narrow?Visibility.Collapsed:Visibility.Visible;
+  if(opacityOptions!=null)opacityOptions.Visibility=narrow?Visibility.Collapsed:Visibility.Visible;
+  syncingAppearanceChoices=true;try{
+   if(compactTheme!=null){compactTheme.Visibility=narrow?Visibility.Visible:Visibility.Collapsed;compactTheme.SelectedIndex=prefs.Theme=="Light"?2:prefs.Theme=="Dark"?1:0;}
+   if(compactOpacity!=null){compactOpacity.Visibility=narrow?Visibility.Visible:Visibility.Collapsed;compactOpacity.SelectedIndex=Math.Clamp(prefs.Material,0,2);}
+  }finally{syncingAppearanceChoices=false;}
+  settingsTabs.TabStripPlacement=narrow?Dock.Top:Dock.Left;
+  if(settingsHeader is Grid header&&header.Children.Count>0&&header.Children[0] is TextBlock title)title.Text=narrow?"Ajustes":"Configurações";
+  if(settingsSurface!=null)foreach(var button in SettingsLogicalObjects(settingsSurface).OfType<Button>())if(button.Content is Grid label&&label.Children.Count==2&&label.Children[0] is TextBlock icon&&icon.FontFamily.Source.Contains("Icons")){icon.Visibility=narrow&&textScale>1.5?Visibility.Collapsed:Visibility.Visible;button.Padding=narrow?new Thickness(4,6,4,6):new Thickness(8,6,8,6);}
   settingsTabs.Margin=new Thickness(narrow?8:16,0,narrow?8:16,0);settingsTabs.Padding=new Thickness(narrow?4:12);
   foreach(TabItem item in settingsTabs.Items)if(item.Header is StackPanel row&&row.Children.Count==2){
    row.Children[1].Visibility=narrow?Visibility.Collapsed:Visibility.Visible;

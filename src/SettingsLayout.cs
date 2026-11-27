@@ -28,9 +28,18 @@ public sealed partial class MainWindow {
    ApplyTextScale(scale);foreach(int page in Enumerable.Range(0,4)){settingsTabs.SelectedIndex=page;settingsWindow!.UpdateLayout();await Task.Delay(60);checks[$"SettingsPage{page}Scale{scale}"]=SettingsInsideScreen()&&SettingsPageFits();}
   }
   foreach(double narrowScale in new[]{1.0,2.0}){
-   ApplyTextScale(narrowScale);settingsWindow!.Width=400;AdaptSettingsNavigation(400);
+   ApplyTextScale(narrowScale);settingsWindow!.Width=320;AdaptSettingsNavigation(320);
    foreach(int page in Enumerable.Range(0,4)){settingsTabs.SelectedIndex=page;settingsWindow.UpdateLayout();await Task.Delay(40);checks[$"NarrowSettingsPage{page}Scale{narrowScale}"]=SettingsInsideScreen()&&SettingsPageFits();}
   }
+  settingsTabs.SelectedIndex=1;settingsWindow!.UpdateLayout();
+  checks["NarrowAppearanceUsesNamedSelectors"]=compactTheme?.IsVisible==true&&compactOpacity?.IsVisible==true&&themeOptions?.IsVisible==false;
+  compactTheme!.SelectedIndex=2;checks["CompactThemeChangesPreference"]=prefs.Theme=="Light";
+  compactOpacity!.SelectedIndex=1;checks["CompactOpacityChangesPreference"]=prefs.Material==1;
+  compactOpacity.SelectedIndex=0;compactTheme.SelectedIndex=0;
+  compactTheme.IsDropDownOpen=true;await Task.Delay(50);checks["CompactThemePopupOpens"]=compactTheme.IsDropDownOpen;
+  settingsWindow.RaiseEvent(new System.Windows.Input.KeyEventArgs(System.Windows.Input.Keyboard.PrimaryDevice,PresentationSource.FromVisual(settingsWindow),0,System.Windows.Input.Key.Escape){RoutedEvent=System.Windows.Input.Keyboard.PreviewKeyDownEvent});
+  checks["EscapeClosesChoiceBeforeSettings"]=!compactTheme.IsDropDownOpen&&PanelVisible;
+  compactOpacity.IsDropDownOpen=true;await Task.Delay(50);checks["CompactOpacityPopupOpens"]=compactOpacity.IsDropDownOpen;compactOpacity.IsDropDownOpen=false;
   ApplyTextScale(1);settingsTabs.SelectedIndex=1;settingsWindow!.UpdateLayout();
   string originalTheme=prefs.Theme;int originalMaterial=prefs.Material;
   Button ThemeButton(string value)=>SettingsVisuals(settingsSurface!).OfType<Button>().First(b=>b.Tag is string tag&&tag==value);
@@ -52,9 +61,10 @@ public sealed partial class MainWindow {
  }
  internal async Task VerifySettingsLayout(){
   if(!App.Testing)return;ShowSettings();await Task.Delay(250);var checks=await VerifySettingsPages();
+  if(args.Contains("--narrow-captures")){ApplyTextScale(2);settingsWindow!.Width=320;AdaptSettingsNavigation(320);}
   foreach(int page in Enumerable.Range(0,4)){
    settingsTabs!.SelectedIndex=page;settingsWindow!.UpdateLayout();await Task.Delay(100);
-   var visual=new DrawingVisual();using(var dc=visual.RenderOpen())dc.DrawRectangle(new VisualBrush(settingsSurface!),null,new Rect(0,0,settingsSurface!.ActualWidth,settingsSurface.ActualHeight));
+   var visual=new DrawingVisual();using(var dc=visual.RenderOpen())dc.DrawRectangle(new VisualBrush(settingsSurface!){ViewboxUnits=BrushMappingMode.Absolute,Viewbox=new Rect(0,0,settingsSurface!.ActualWidth,settingsSurface.ActualHeight),Stretch=Stretch.Fill},null,new Rect(0,0,settingsSurface!.ActualWidth,settingsSurface.ActualHeight));
    // Export the actual WPF surface at high DPI for Store screenshots, without
    // stretching an existing bitmap or capturing the user's desktop/profile.
    double captureScale=Environment.GetCommandLineArgs().Contains("--store-captures")?2:1;

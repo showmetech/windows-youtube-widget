@@ -37,7 +37,7 @@
   ],
   "description": "Transfere o vídeo do Chrome para o widget e envia recomendações da página inicial.",
   "manifest_version": 3,
-  "version": "1.7.0",
+  "version": "1.7.1",
   "permissions": [
     "nativeMessaging",
     "storage"

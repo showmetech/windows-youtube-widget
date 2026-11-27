@@ -1,5 +1,5 @@
 #ifndef AppVersion
- #define AppVersion "1.9.1"
+ #define AppVersion "1.9.2"
 #endif
 #ifndef TargetArchitecture
  #define TargetArchitecture "x64"
@@ -49,8 +49,8 @@ Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueName: 
 Root: HKCU; Subkey: "Software\Google\Chrome\NativeMessagingHosts\com.bruno.youtube_widget"; Flags: uninsdeletekey
 Root: HKCU; Subkey: "Software\Microsoft\Edge\NativeMessagingHosts\com.bruno.youtube_widget"; Flags: uninsdeletekey
 [Icons]
-Name: "{group}\YouTube Widget"; Filename: "{app}\WindowsYouTubeWidget.exe"; IconFilename: "{app}\Assets\App-{#AppVersion}.ico"
-Name: "{autodesktop}\YouTube Widget"; Filename: "{app}\WindowsYouTubeWidget.exe"; IconFilename: "{app}\Assets\App-{#AppVersion}.ico"
+Name: "{group}\SMT YouTube Widget"; Filename: "{app}\WindowsYouTubeWidget.exe"; IconFilename: "{app}\Assets\App-{#AppVersion}.ico"
+Name: "{autodesktop}\SMT YouTube Widget"; Filename: "{app}\WindowsYouTubeWidget.exe"; IconFilename: "{app}\Assets\App-{#AppVersion}.ico"
 [Run]
 Filename: "{app}\WindowsYouTubeWidget.exe"; Description: "Abrir SMT YouTube Widget"; Flags: nowait postinstall skipifsilent
 [UninstallDelete]
@@ -102,11 +102,25 @@ begin
   finally FindClose(Item); end;
  end;
 end;
+procedure RemoveOwnedLegacyShortcut(Path: String);
+var Shell, Shortcut: Variant;
+begin
+ if not FileExists(Path) then Exit;
+ try
+  Shell := CreateOleObject('WScript.Shell');
+  Shortcut := Shell.CreateShortcut(Path);
+  if CompareText(Shortcut.TargetPath, ExpandConstant('{app}\WindowsYouTubeWidget.exe')) = 0 then DeleteFile(Path);
+ except
+  Log('Legacy shortcut could not be inspected; preserved.');
+ end;
+end;
 procedure CurStepChanged(CurStep: TSetupStep);
 var Code: Integer;
 begin
  if CurStep = ssPostInstall then begin
   RemoveOldVersionedIcons();
+  RemoveOwnedLegacyShortcut(ExpandConstant('{group}\YouTube Widget.lnk'));
+  RemoveOwnedLegacyShortcut(ExpandConstant('{autodesktop}\YouTube Widget.lnk'));
   if not Exec(ExpandConstant('{app}\WindowsYouTubeWidget.exe'), '--register-native-host', '', SW_HIDE, ewWaitUntilTerminated, Code) or (Code <> 0) then
    RaiseException('Não foi possível registrar a conexão local com o navegador.');
  end;

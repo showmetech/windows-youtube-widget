@@ -13,4 +13,6 @@ Use the Windows guidance at https://fluent2.microsoft.design/ as the design refe
 
 References: design-principles, layout, accessibility, typography, iconography, design-tokens, color, motion, content-design and wait-ux on the official Fluent 2 website. Native Media Player is a comparative reference for content priority and mini-player behavior, not a source of product branding.
 
-Validate builds with scripts/Build.ps1 and scripts/Test.ps1. UI tests include settings pages at 400 px, normal and enlarged text; geometry fixtures cover small and short work areas. Run real playback and animation checks before distributing changes. Cross-compilation does not prove physical ARM64 or Windows 10 compatibility.
+Validate builds with scripts/Build.ps1 and scripts/Test.ps1. UI tests include settings pages at 320 px, normal and enlarged text; geometry fixtures cover small and short work areas. Run real playback and animation checks before distributing changes. Cross-compilation does not prove physical ARM64 or Windows 10 compatibility.
+
+Immediate settings use a switch presentation; selection-only controls use a non-editable WPF ComboBox. Their keyboard and automation semantics are retained.
