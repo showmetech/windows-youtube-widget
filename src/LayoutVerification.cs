@@ -10,7 +10,12 @@ public sealed partial class MainWindow {
   UpdateLayout();Rect Bounds(FrameworkElement element){var point=element.TranslatePoint(new Point(),this);return new Rect(point,new Size(element.ActualWidth,element.ActualHeight));}
   var ordered=new FrameworkElement[]{config,pin,expand,backButton,playButton,forwardButton,muteButton,volume,close};
   var bounds=ordered.Select(Bounds).ToArray();double center=(Bounds(backButton).Left+Bounds(forwardButton).Right)/2;
-  return Math.Abs(center-ActualWidth/2)<1&&Bounds(playerFrame).Top<=2&&bounds.All(r=>r.Left>=1&&r.Right<=ActualWidth-1&&r.Bottom<=ActualHeight-1)&&bounds.Zip(bounds.Skip(1),(a,b)=>a.Right<=b.Left+.1).All(x=>x)&&bounds.All(r=>Math.Abs((r.Top+r.Bottom)/2-(Bounds(playButton).Top+Bounds(playButton).Bottom)/2)<1);
+  bool noOverlap=bounds.SelectMany((a,i)=>bounds.Skip(i+1).Select(b=>Rect.Intersect(a,b))).All(r=>r.IsEmpty||r.Width<=.1||r.Height<=.1);
+  return Math.Abs(center-ActualWidth/2)<1&&Bounds(playerFrame).Top<=2&&bounds.All(r=>r.Left>=1&&r.Right<=ActualWidth-1&&r.Bottom<=ActualHeight-1)&&noOverlap;
+ }
+ internal bool VerifyAdaptiveFooter(){
+  if(!App.Testing)return false;
+  try{var plan=PlayerLayout.Fit(344,600,false,textScale);Width=plan.Width;Height=plan.VideoHeight+plan.ChromeHeight;playerFrame.Height=plan.VideoHeight;AdaptTransport(plan);UpdateLayout();return FooterLayoutValid();}finally{Position();UpdateLayout();}
  }
  internal async System.Threading.Tasks.Task VerifyControlLayout(){
   if(!App.Testing)return;

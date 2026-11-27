@@ -2,8 +2,9 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 function Get-RepositoryRoot { [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..')) }
 function Find-Dotnet {
- $candidates=@((Get-Command dotnet -ErrorAction SilentlyContinue).Source,(Join-Path $env:USERPROFILE 'scoop\apps\dotnet-sdk\current\dotnet.exe')) | Where-Object { $_ -and (Test-Path -LiteralPath $_) } | Select-Object -Unique
- foreach ($candidate in $candidates) { if (@(& $candidate --list-sdks) -match '^10\.0\.') { return $candidate } }
+ $installedTen=@(Get-ChildItem -Path (Join-Path $env:USERPROFILE 'scoop\apps\dotnet-sdk\10.*') -Directory -ErrorAction SilentlyContinue | Sort-Object Name -Descending | ForEach-Object {Join-Path $_.FullName 'dotnet.exe'})
+ $candidates=@($installedTen)+@((Get-Command dotnet -ErrorAction SilentlyContinue).Source,(Join-Path $env:USERPROFILE 'scoop\apps\dotnet-sdk\current\dotnet.exe')) | Where-Object { $_ -and (Test-Path -LiteralPath $_) } | Select-Object -Unique
+ foreach ($candidate in $candidates) { if (@(& $candidate --list-sdks) -match '^10\.0\.') { $sdkVersion=(& $candidate --version).Trim();$env:MSBuildSDKsPath=Join-Path (Split-Path $candidate) ('sdk\'+$sdkVersion+'\Sdks');return $candidate } }
  throw '.NET 10 SDK not found.'
 }
 function Get-ReleaseVersion {

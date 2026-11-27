@@ -1,6 +1,6 @@
 {
   "action": {
-    "default_title": "YouTube Widget",
+    "default_title": "SMT YouTube Widget",
     "default_popup": "popup.html",
     "default_icon": {
       "16": "icons/icon16.png",
@@ -9,7 +9,7 @@
       "128": "icons/icon128.png"
     }
   },
-  "name": "YouTube Widget · Recomendações",
+  "name": "SMT YouTube Widget · Recomendações",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArY5o/exSewnidHIkjlW7gaeI3WK+6epwKAJdcfrzGFM71vJCvtj6X2gq34fJ2vNodU2xrcNez3rwDuUutC2ira7q1+Nx3Dam5lUoKZ4i0qIBya7RdifO/JkReNx5fXmEnM9p3x/cmAbD47/z3jbn1ofEby5FzLU/g7S9vYtt0jTYYGVvnKQYVgYaOAOPc7LARIeL/jbPo5J7S0ef3VVtQVen5/PkD1PwCCHCQYI8pNyyiyC+RGoz8+87+v6xzjJHdhGLsoElDYeC5VMXgiAvpU6MF96u5FspLOJ3LXh8LAgDadFlMVajRxQHdlyjymhjWDGaNu/RbVDNtRhaQYcx6QIDAQAB",
   "content_scripts": [
     {
@@ -37,7 +37,7 @@
   ],
   "description": "Transfere o vídeo do Chrome para o widget e envia recomendações da página inicial.",
   "manifest_version": 3,
-  "version": "1.6.9",
+  "version": "1.7.0",
   "permissions": [
     "nativeMessaging",
     "storage"

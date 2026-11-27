@@ -20,7 +20,7 @@
   <Style TargetType="Button">
    <Setter Property="Foreground" Value="{DynamicResource Ink}"/><Setter Property="Background" Value="{DynamicResource TileBrush}"/>
    <Setter Property="BorderBrush" Value="{DynamicResource BorderLine}"/><Setter Property="BorderThickness" Value="1"/>
-   <Setter Property="MinHeight" Value="32"/><Setter Property="Padding" Value="12,6"/>
+   <Setter Property="MinHeight" Value="32"/><Setter Property="FocusVisualStyle" Value="{x:Null}"/><Setter Property="Padding" Value="12,6"/>
    <Setter Property="Template" Value="{DynamicResource FluentButtonTemplate}"/>
   </Style>
   <Style TargetType="TextBox">

@@ -17,7 +17,7 @@ internal static class SuiteVerification {
    w.prefs.ExpandedPlayer=false;w.Position();w.UpdateLayout();
    checks["StandardWidth"]=Math.Abs(w.Width-360)<1;checks["StandardHeight"]=w.Height>=280&&w.Height<=290;
    checks["MainExcludedFromTaskbar"]=NativePosition.TaskbarExcluded(w);
-   checks["FooterAlignment"]=w.FooterLayoutValid();checks["TransparentWindow"]=w.AllowsTransparency&&w.Background==Brushes.Transparent;
+   checks["FooterAlignment"]=w.FooterLayoutValid();checks["AdaptiveFooterAt320"]=w.VerifyAdaptiveFooter();checks["TransparentWindow"]=w.AllowsTransparency&&w.Background==Brushes.Transparent;
    checks["OpaqueContent"]=w.Opacity==1;checks["RoundedSurface"]=w.surface.CornerRadius.TopLeft==8;
    checks["PlayerViewport"]=w.web.Mode is "Composition" or "OwnedOpaqueViewport";
    checks["PinSeparateFromTopmost"]=w.prefs.Pinned&&!w.Topmost;

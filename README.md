@@ -1,4 +1,4 @@
-# YouTube Widget para Windows
+# SMT YouTube Widget para Windows
 
 Player flutuante com recomendações da conta conectada no YouTube pelo Chrome, transferência no ponto atual e controles de reprodução. Fica na bandeja, com atalho na área de trabalho e inicialização opcional com o Windows.
 
@@ -22,7 +22,7 @@ Veja [Conectar o YouTube](docs/CONECTAR-YOUTUBE.md). A extensão requer ativaç�
 
 ## Microsoft Store e atualizações
 
-O cadastro existente **Showmetech / SHOWMETECH LTDA** está em verificação pela Microsoft. A listagem ainda não está publicada na Microsoft Store. Cada atualização deve seguir [RELEASING.md](docs/RELEASING.md): GitHub e recibo da Store correspondentes à mesma versão. A automação envia o MSIX após habilitar o produto e credenciais existentes; a Microsoft determina o fim da certificação.
+O produto pertence ao cadastro existente **Showmetech / SHOWMETECH LTDA**. Após reenvio em 23/11/2026, houve nova solicitação de correção em 25/11/2026, ainda dependente de leitura do relatório atual. A listagem ainda não está publicada na Microsoft Store. Cada atualização deve seguir [RELEASING.md](docs/RELEASING.md): GitHub e recibo da Store correspondentes à mesma versão. A automação envia o MSIX após habilitar o produto e credenciais existentes; a Microsoft determina o fim da certificação.
 
 Código em src, extensão em extension, iniciador em startup e rotinas em scripts. VERSION controla a versão do app. Veja [o preparo da Store](docs/STORE-ONBOARDING.md).
 

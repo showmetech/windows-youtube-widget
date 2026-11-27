@@ -1,3 +1,12 @@
+# 1.9.0
+
+- Adapta o tamanho do player ao espaço útil mantendo 16:9; reorganiza controles quando a largura é insuficiente.
+- Configurações com navegação superior compacta em janelas estreitas, legendas legíveis e transição curta que respeita movimento reduzido.
+- Destaca a ação Reproduzir, preservando transporte centralizado, pin, opacidade e identidade de bandeja.
+- Simplifica o popup da extensão, com temas do sistema, foco visível e detalhes de privacidade recolhíveis; extensão 1.7.0, sem novas permissões.
+- Alinha nomes visíveis a SMT YouTube Widget, preservando identidades técnicas e caminhos de atualização.
+- A publicação na Microsoft Store continua sujeita ao relatório e à certificação; este release não representa aprovação.
+
 # 1.8.4
 
 - Remove metadados de depuração dos binários de produção e bloqueia pacotes que contenham caminhos de perfil nos executáveis e DLLs do aplicativo.

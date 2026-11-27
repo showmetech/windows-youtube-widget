@@ -27,6 +27,10 @@ public sealed partial class MainWindow {
   foreach(double scale in new[]{1.0,1.5,2.0}){
    ApplyTextScale(scale);foreach(int page in Enumerable.Range(0,4)){settingsTabs.SelectedIndex=page;settingsWindow!.UpdateLayout();await Task.Delay(60);checks[$"SettingsPage{page}Scale{scale}"]=SettingsInsideScreen()&&SettingsPageFits();}
   }
+  foreach(double narrowScale in new[]{1.0,2.0}){
+   ApplyTextScale(narrowScale);settingsWindow!.Width=400;AdaptSettingsNavigation(400);
+   foreach(int page in Enumerable.Range(0,4)){settingsTabs.SelectedIndex=page;settingsWindow.UpdateLayout();await Task.Delay(40);checks[$"NarrowSettingsPage{page}Scale{narrowScale}"]=SettingsInsideScreen()&&SettingsPageFits();}
+  }
   ApplyTextScale(1);settingsTabs.SelectedIndex=1;settingsWindow!.UpdateLayout();
   string originalTheme=prefs.Theme;int originalMaterial=prefs.Material;
   Button ThemeButton(string value)=>SettingsVisuals(settingsSurface!).OfType<Button>().First(b=>b.Tag is string tag&&tag==value);

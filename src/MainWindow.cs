@@ -44,7 +44,7 @@ public sealed partial class MainWindow:Window {
  internal bool Animate=>prefs.Animations&&SystemParameters.ClientAreaAnimation;
  public MainWindow(string[] args) {
   prefs.ExpandedPlayer=true;
-  this.args=args;Title="YouTube Widget";Width=640;Height=439;MinWidth=1;MinHeight=1;
+  this.args=args;Title="SMT YouTube Widget";Width=640;Height=439;MinWidth=1;MinHeight=1;
   WindowStyle=WindowStyle.None;AllowsTransparency=true;Background=Brushes.Transparent;ResizeMode=ResizeMode.NoResize;
   ShowInTaskbar=false;FontFamily=new("Segoe UI Variable, Segoe UI");FontSize=14;UseLayoutRounding=true;SnapsToDevicePixels=true;
   SetResourceReference(ForegroundProperty,"Ink");surface.SetResourceReference(Border.BorderBrushProperty,"BorderLine");Content=surface;
@@ -109,7 +109,7 @@ public sealed partial class MainWindow:Window {
  internal void CheckIdle(){if(!App.Testing&&tray!=null&&!handoffActive&&!trayRefreshActive&&!prefs.Pinned&&IsVisible&&!PanelVisible&&!animating&&!SuiteActivation.MenuOpen&&!IsMouseCaptureWithin&&Environment.TickCount64-interaction>=20000)HideWidget();}
  void SetStatus(string value,bool feedback=false){feedbackTimeout.Stop();status.Text=value;status.ToolTip=value;videoTitle.ToolTip=videoTitle.Text+"\n"+contextLabel.Text+"\n"+value;bool error=value.Contains("Não foi possível")||value.Contains("indisponível")||value.Contains("não permite")||value.Contains("Sem conexão")||value.Contains("recusou")||value.Contains("Instale o");var show=error||feedback?Visibility.Visible:Visibility.Collapsed;status.Visibility=show;videoTitle.Visibility=show==Visibility.Visible?Visibility.Collapsed:Visibility.Visible;titleFrame.Visibility=show;timeline.Visibility=show==Visibility.Visible?Visibility.Collapsed:Visibility.Visible;if(feedback)feedbackTimeout.Start();}
  internal void Save(){try{prefs.Save();}catch(Exception e){SetStatus("Não foi possível salvar as preferências.");App.Log(e);}}
- internal void Position(){if(!IsLoaded)return;double width=prefs.ExpandedPlayer?640:360;volume.Width=prefs.ExpandedPlayer?64:40;if(transport.ColumnDefinitions.Count==3)transport.ColumnDefinitions[0].Width=transport.ColumnDefinitions[2].Width=new GridLength(prefs.ExpandedPlayer?136:112);double videoHeight=Math.Max(200,(width-2)*9/16);double chrome=10+70*textScale;NativePosition.BottomRight(this,width,videoHeight+chrome);playerFrame.Height=Math.Max(200,(Width-2)*9/16);if(PanelVisible)PositionSettings();}
+ internal void Position(){if(!IsLoaded)return;var monitor=System.Windows.Forms.Screen.FromHandle(new WindowInteropHelper(this).Handle);var dpi=VisualTreeHelper.GetDpi(this);var plan=PlayerLayout.Fit(monitor.WorkingArea.Width/dpi.DpiScaleX,monitor.WorkingArea.Height/dpi.DpiScaleY,prefs.ExpandedPlayer,textScale);AdaptTransport(plan);NativePosition.BottomRight(this,plan.Width,plan.VideoHeight+plan.ChromeHeight);playerFrame.Height=plan.VideoHeight;if(PanelVisible)PositionSettings();}
  internal void ShowWidget(){if(exiting)return;if(IsVisible&&!animating){Position();Activate();Touch();return;}animating=false;if(!App.Testing)SuiteActivation.Claim();base.Show();WindowState=WindowState.Normal;Position();ApplyAppearance();Activate();Touch();web.Suspend(false);Reveal(this,true,()=>web.SetRevealHeight(null));}
  internal void OpenFromTray(){ShowWidget();_ = RefreshOnTrayOpen();}
  void ToggleWidget(){if(IsVisible)HideWidget();else OpenFromTray();}

@@ -10,7 +10,7 @@ public sealed partial class MainWindow {
  readonly StackPanel playerFooter=new();
  readonly Grid timeline=new(){Height=22,Margin=new(12,0,12,0)},transport=new(){Height=48,Margin=new(12,0,12,0)};
  readonly Slider seek=new(){Minimum=0,Maximum=1,IsEnabled=false,Height=22},volume=new(){Minimum=0,Maximum=100,Value=100,Width=50,Height=32};
- readonly TextBlock elapsed=Text("0:00",10,false,"SecondaryInk"),duration=Text("0:00",10,false,"SecondaryInk");
+ readonly TextBlock elapsed=Text("0:00",12,false,"SecondaryInk"),duration=Text("0:00",12,false,"SecondaryInk");
  Button backButton=null!,forwardButton=null!;
  bool syncingControls,playerReady;
  long lastProgressSave;
@@ -24,7 +24,7 @@ public sealed partial class MainWindow {
  }
  void BuildFeedback(StackPanel body){
   titleFrame.Height=22;titleFrame.Margin=new(12,0,12,0);titleFrame.Visibility=Visibility.Collapsed;titleFrame.ClipToBounds=true;
-  status.Margin=new(4,0,4,0);status.FontSize=11;status.MaxHeight=22;status.TextWrapping=TextWrapping.NoWrap;status.TextTrimming=TextTrimming.CharacterEllipsis;status.Visibility=Visibility.Collapsed;
+  status.Margin=new(4,0,4,0);status.FontSize=12;status.MaxHeight=22;status.TextWrapping=TextWrapping.NoWrap;status.TextTrimming=TextTrimming.CharacterEllipsis;status.Visibility=Visibility.Collapsed;
   AutomationProperties.SetLiveSetting(status,AutomationLiveSetting.Polite);titleFrame.Children.Add(status);
  }
  void BuildTransport(StackPanel body){
@@ -37,7 +37,7 @@ public sealed partial class MainWindow {
   transport.Children.Add(windowActions);
   var playback=new StackPanel{Orientation=Orientation.Horizontal,VerticalAlignment=VerticalAlignment.Center,HorizontalAlignment=HorizontalAlignment.Center};
   backButton=IconButton("\uE892","Vídeo anterior",async()=>await PreviousVideo());forwardButton=IconButton("\uE893","Próximo vídeo",async()=>await NextVideo());
-  playButton.Width=playButton.Height=36;playButton.Margin=new(0,0,0,0);playButton.SetResourceReference(BorderBrushProperty,"Accent");playButton.BorderThickness=new(2);
+  playButton.Width=playButton.Height=36;playButton.SetResourceReference(BackgroundProperty,"Accent");playButton.SetResourceReference(ForegroundProperty,"AccentInk");playButton.Margin=new(0,0,0,0);playButton.SetResourceReference(BorderBrushProperty,"Accent");playButton.BorderThickness=new(2);
   playButton.Template=(ControlTemplate)System.Windows.Markup.XamlReader.Parse("<ControlTemplate xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml' TargetType='Button'><Border x:Name='Ring' Background='{TemplateBinding Background}' BorderBrush='{TemplateBinding BorderBrush}' BorderThickness='2' CornerRadius='18'><ContentPresenter HorizontalAlignment='Center' VerticalAlignment='Center'/></Border><ControlTemplate.Triggers><Trigger Property='IsKeyboardFocused' Value='True'><Setter TargetName='Ring' Property='BorderThickness' Value='3'/></Trigger><Trigger Property='IsPressed' Value='True'><Setter TargetName='Ring' Property='Opacity' Value='0.7'/></Trigger></ControlTemplate.Triggers></ControlTemplate>");
   playback.Children.Add(backButton);playback.Children.Add(playButton);playback.Children.Add(forwardButton);Grid.SetColumn(playback,1);transport.Children.Add(playback);
   volume.Width=64;volume.MinWidth=0;volume.Margin=new(4,0,4,0);

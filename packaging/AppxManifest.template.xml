@@ -8,7 +8,7 @@
  IgnorableNamespaces="uap uap5 desktop6 virtualization rescap">
  <Identity Name="@IDENTITY@" Publisher="@PUBLISHER@" Version="@VERSION@.0" ProcessorArchitecture="@ARCH@"/>
  <Properties>
-  <DisplayName>YouTube Widget</DisplayName><PublisherDisplayName>@PUBLISHER_DISPLAY@</PublisherDisplayName>
+  <DisplayName>SMT YouTube Widget</DisplayName><PublisherDisplayName>@PUBLISHER_DISPLAY@</PublisherDisplayName>
   <Logo>Assets\StoreLogo.png</Logo><Description>Player do YouTube na área de trabalho.</Description>
   <desktop6:RegistryWriteVirtualization>disabled</desktop6:RegistryWriteVirtualization>
   <desktop6:FileSystemWriteVirtualization>disabled</desktop6:FileSystemWriteVirtualization>
@@ -24,9 +24,9 @@
  <Dependencies><TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.26100.0"/></Dependencies>
  <Resources><Resource Language="pt-br"/><Resource Language="en-us"/></Resources>
  <Applications><Application Id="YouTubeWidget" Executable="app\WindowsYouTubeWidget.exe" EntryPoint="Windows.FullTrustApplication">
-  <uap:VisualElements DisplayName="YouTube Widget" Description="Vídeos e recomendações do YouTube na área de trabalho" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png" BackgroundColor="transparent"/>
+  <uap:VisualElements DisplayName="SMT YouTube Widget" Description="Vídeos e recomendações do YouTube na área de trabalho" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png" BackgroundColor="transparent"/>
   <Extensions><uap5:Extension Category="windows.startupTask" Executable="app\YouTubeWidget.Startup.exe" EntryPoint="Windows.FullTrustApplication">
-   <uap5:StartupTask TaskId="YouTubeWidgetStartup" Enabled="true" DisplayName="YouTube Widget"/>
+   <uap5:StartupTask TaskId="YouTubeWidgetStartup" Enabled="true" DisplayName="SMT YouTube Widget"/>
   </uap5:Extension></Extensions>
  </Application></Applications>
  <Capabilities><rescap:Capability Name="runFullTrust"/><rescap:Capability Name="unvirtualizedResources"/></Capabilities>

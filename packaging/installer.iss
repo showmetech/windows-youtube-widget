@@ -1,5 +1,5 @@
 #ifndef AppVersion
- #define AppVersion "1.8.4"
+ #define AppVersion "1.9.0"
 #endif
 #ifndef TargetArchitecture
  #define TargetArchitecture "x64"
@@ -9,7 +9,7 @@
 #endif
 [Setup]
 AppId={{1E53A5FD-8245-4EB8-9689-94653316E765}
-AppName=Windows YouTube Widget
+AppName=SMT YouTube Widget
 AppVersion={#AppVersion}
 AppPublisher=Showmetech
 AppPublisherURL=https://showmetech.github.io/windows-youtube-widget/
@@ -52,7 +52,7 @@ Root: HKCU; Subkey: "Software\Microsoft\Edge\NativeMessagingHosts\com.bruno.yout
 Name: "{group}\YouTube Widget"; Filename: "{app}\WindowsYouTubeWidget.exe"; IconFilename: "{app}\Assets\App-{#AppVersion}.ico"
 Name: "{autodesktop}\YouTube Widget"; Filename: "{app}\WindowsYouTubeWidget.exe"; IconFilename: "{app}\Assets\App-{#AppVersion}.ico"
 [Run]
-Filename: "{app}\WindowsYouTubeWidget.exe"; Description: "Abrir YouTube Widget"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\WindowsYouTubeWidget.exe"; Description: "Abrir SMT YouTube Widget"; Flags: nowait postinstall skipifsilent
 [UninstallDelete]
 Type: files; Name: "{app}\native-host.json"
 Type: files; Name: "{localappdata}\WindowsYouTubeWidget\NativeMessaging\native-host.json"
